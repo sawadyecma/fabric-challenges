@@ -1,32 +1,19 @@
 import { fabric } from "fabric";
 import { startHook } from "../common/startHook";
+import { Shape } from "./shape";
 
-const { app, canvasEl } = startHook();
+const { canvasEl } = startHook();
 
 const canvas = new fabric.Canvas(canvasEl);
 
-const male = new fabric.Rect({
-  width: 100,
-  height: 100,
-  fill: undefined,
-  strokeWidth: 5,
-  stroke: "black",
-});
-
-const female = new fabric.Circle({
-  width: 100,
-  height: 100,
-  fill: undefined,
-  radius: 50,
-  strokeWidth: 5,
-  stroke: "black",
-});
-
-const persons: fabric.Object[] = [male, female];
-
-persons.forEach((person, i) => {
-  person.set({ left: i * 100 });
-  canvas.add(person);
-});
+canvas.add(
+  //　男性本人
+  new Shape({ gender: "male", kind: "self", len: 100 }, { left: 0, top: 0 }),
+  //　男性
+  new Shape(
+    { gender: "male", kind: undefined, len: 100 },
+    { left: 110, top: 0 }
+  )
+);
 
 export {};
