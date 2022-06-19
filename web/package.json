@@ -5,7 +5,11 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/fabric": "^4.5.8",
     "typescript": "^4.5.4",
     "vite": "^2.9.9"
+  },
+  "dependencies": {
+    "fabric": "^5.2.1"
   }
 }

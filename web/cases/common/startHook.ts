@@ -1,4 +1,5 @@
 import { backArrow } from "./backArrow";
+import { useCanvasEl } from "./canvasEl";
 
 export function startHook() {
   const app = document.getElementById("app");
@@ -8,5 +9,7 @@ export function startHook() {
 
   backArrow(app);
 
-  return app;
+  const canvasEl = useCanvasEl(app);
+
+  return { app, canvasEl };
 }
