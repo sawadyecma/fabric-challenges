@@ -1,5 +1,5 @@
 import { startHook } from "../common/startHook";
 
-startHook();
+const app = startHook();
 
 export {};
