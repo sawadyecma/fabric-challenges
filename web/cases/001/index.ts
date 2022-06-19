@@ -26,4 +26,8 @@ canvas.add(
   })
 );
 
+canvas.add(
+  new fabric.Line([300, 300, 600, 310], { backgroundColor: "yellow" })
+);
+
 export {};
