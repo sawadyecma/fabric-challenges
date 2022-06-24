@@ -32,4 +32,17 @@ canvas.add(blueRect);
 
 console.log(blueRect.getBoundingRect()); // boundingRectはoriginXを加味する
 console.log(blueRect.left); // leftはoriginXを加味しない
+
+blueRect.set("top", blueRect.top! + 100);
+blueRect.set("left", blueRect.left! + 100);
+
+blueRect.setCoords();
+canvas.renderAll();
+
+console.log(blueRect.getBoundingRect()); // boundingRectはoriginXを加味する
+console.log(blueRect.left); // leftはoriginXを加味しない
+
+canvas.centerObject(blueRect);
+console.log(blueRect.left); // centerObjectした後、leftはoriginXを加味する
+
 export {};
