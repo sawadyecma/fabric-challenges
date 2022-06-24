@@ -1,7 +1,7 @@
 import { startHook } from "../common/startHook";
 import { fabric } from "fabric";
 
-const { canvasEl } = startHook();
+const { app, canvasEl } = startHook();
 
 const canvas = new fabric.Canvas(canvasEl, { backgroundColor: "grey" });
 
@@ -27,17 +27,27 @@ const blueRect = new fabric.Rect({
 });
 canvas.add(blueRect);
 
-const svg = canvas.toSVG();
-const ele = document.getElementById("svg");
-if (ele) {
-  const a = document.createElement("a");
-  a.innerText = "back";
-  a.href = "./";
-  ele.appendChild(a);
-  const div = document.createElement("div");
-  div.style.border = "solid 1px red";
+const svgArea = document.createElement("div");
+svgArea.style.marginLeft = "8px";
+app.after(svgArea);
+
+const a = document.createElement("a");
+a.innerText = "back";
+a.href = "./";
+a.style.visibility = "hidden";
+svgArea.appendChild(a);
+const div = document.createElement("div");
+svgArea.appendChild(div);
+
+const toSvgButton = document.createElement("button");
+toSvgButton.innerText = "toSvg";
+toSvgButton.addEventListener("click", toSvg);
+
+app.appendChild(toSvgButton);
+
+function toSvg() {
+  const svg = canvas.toSVG();
   div.innerHTML = svg ?? "";
-  ele.appendChild(div);
 }
 
 export {};
