@@ -64,7 +64,6 @@ async function onToggleCheckButtonClick() {
   const cur = checkboxOn.getChecked();
   console.log(cur);
   await checkboxOn.setChecked(!cur);
-  // checkboxOn.render();
   canvas.renderAll();
 }
 

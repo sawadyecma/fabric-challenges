@@ -40,7 +40,13 @@ export class Checkbox extends fabric.Group {
     const scaleX = this.scaleX!;
     const scaleY = this.scaleY!;
 
-    this.remove(...this._objects);
+    const removeObjects = this._objects;
+    // console.log(removeObjects);
+    // removeObjects.forEach((o) => {
+    // this.removeWithUpdate(o);
+    // return;
+    // });
+    this.remove(...removeObjects);
 
     const target = checked ? checkboxOn : checkboxOff;
 
@@ -54,8 +60,10 @@ export class Checkbox extends fabric.Group {
     this.set("height", height);
     this.set("scaleX", scaleX);
     this.set("scaleY", scaleY);
-    this.set("hasControls", true);
-    this.set("selectable", true);
+    // this.set("hasControls", true);
+    // this.set("selectable", true);
+    // this.set("hasBorders", true);
+    // this.set("dirty", true);
 
     this.checked = checked;
     return;
