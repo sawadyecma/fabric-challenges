@@ -45,17 +45,29 @@ const checkboxOn = new Checkbox(true, undefined, (checked: boolean) => {
 checkboxOn.set({ left: 200, top: 40 });
 canvas.add(checkboxOn);
 
-const menu = new Menu("テキスト", () => {
-  alert("menu opened to ungroup");
-  const g = menu.ungroupOnCanvas();
+const menus = [
+  "メニューあいうえ1",
+  "メニューさしすせ2",
+  "メニュー3",
+  "メニュー4",
+];
+const menu = new Menu("メニュー1", () => {
+  const mTxt = menus[Math.floor(Math.random() * menus.length)];
+  menu.setText(mTxt);
 
-  g.forEachObject((obj) => {
-    canvas.add(obj);
-  });
-  canvas.remove(menu);
+  canvas.renderAll();
 });
 
 canvas.add(menu);
+
+const menu2 = new Menu("メニュー2", () => {
+  const mTxt = menus[Math.floor(Math.random() * menus.length)];
+  menu2.setText(mTxt);
+
+  canvas.renderAll();
+});
+
+canvas.add(menu2);
 
 const svgArea = prepareToSvgArea(app);
 
