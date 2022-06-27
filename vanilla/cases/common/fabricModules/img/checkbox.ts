@@ -6,20 +6,21 @@ const checkboxOnImageEle = await composeImgEle("/icons/checkbox/on.svg");
 
 export class Checkbox extends fabric.Image {
   private checked: boolean = false;
+  private mouseDownPointer: fabric.Point | undefined;
 
-  onMousedown(e: fabric.IEvent) {
-    console.log(e);
-    this.setChecked(!this.getChecked());
-  }
-
-  constructor(checked: boolean, options?: fabric.IImageOptions) {
+  constructor(
+    checked: boolean,
+    options?: fabric.IImageOptions,
+    private onChecked?: (checked: boolean) => void
+  ) {
     const targetEle = checked ? checkboxOnImageEle : checkboxOffImageEle;
 
     super(targetEle, options);
 
     this.checked = checked;
 
-    this.on("mousedown", this.onMousedown);
+    this.on("mousedown", this.onMouseDown);
+    this.on("mouseup", this.onMouseUp);
   }
 
   getChecked() {
@@ -32,5 +33,15 @@ export class Checkbox extends fabric.Image {
     this.setElement(targetEle);
     this.checked = checked;
     return;
+  }
+
+  onMouseDown(e: fabric.IEvent) {
+    this.mouseDownPointer = e.absolutePointer;
+  }
+
+  onMouseUp(e: fabric.IEvent) {
+    if (this.mouseDownPointer?.eq(e.absolutePointer!)) {
+      this.onChecked && this.onChecked(!this.checked);
+    }
   }
 }

@@ -1,8 +1,7 @@
 import { startHook } from "../common/startHook";
 import { fabric } from "fabric";
 import { prepareToSvgArea } from "../common/prepareToSvgArea";
-import { composeSvg } from "../common/fabricModules/svg/svg";
-import { Checkbox } from "../common/fabricModules/svg/checkbox";
+import { Checkbox } from "../common/fabricModules/img/checkbox";
 import { Menu } from "../common/fabricModules/grp/menu";
 
 const { app, canvasEl } = startHook();
@@ -31,16 +30,18 @@ const blueRect = new fabric.Rect({
 });
 canvas.add(blueRect);
 
-const checkboxOff = await composeSvg();
-checkboxOff.set({ left: 200, top: 0 });
+const checkboxOff1 = new Checkbox(false, undefined, (checked: boolean) => {
+  checkboxOff1.setChecked(checked);
+  canvas.renderAll();
+});
 
-canvas.add(checkboxOff);
-
-const checkboxOff1 = new Checkbox(false);
 checkboxOff1.set({ left: 200, top: 200 });
 canvas.add(checkboxOff1);
 
-const checkboxOn = new Checkbox(true);
+const checkboxOn = new Checkbox(true, undefined, (checked: boolean) => {
+  checkboxOn.setChecked(checked);
+  canvas.renderAll();
+});
 checkboxOn.set({ left: 200, top: 40 });
 canvas.add(checkboxOn);
 
