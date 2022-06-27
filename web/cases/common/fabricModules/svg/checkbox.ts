@@ -40,7 +40,7 @@ export class Checkbox extends fabric.Group {
     const scaleX = this.scaleX!;
     const scaleY = this.scaleY!;
 
-    const removeObjects = this._objects;
+    const removeObjects = [...this._objects];
     // console.log(removeObjects);
     // removeObjects.forEach((o) => {
     // this.removeWithUpdate(o);
