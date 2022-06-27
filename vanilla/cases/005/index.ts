@@ -41,6 +41,7 @@ canvas.add(checkboxOff1);
 
 const checkboxOn = new Checkbox(true);
 checkboxOn.set({ left: 200, top: 40 });
+checkboxOn.scaleToHeight(100);
 canvas.add(checkboxOn);
 
 const svgArea = prepareToSvgArea(app);
