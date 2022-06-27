@@ -3,16 +3,25 @@ import { composeImgEle } from "../img/imgEle";
 
 const loadedDropDownEle = await composeImgEle("/icons/menu-down.svg");
 
+type Coodinate = {
+  left: number;
+  top: number;
+};
+
 export class Menu extends fabric.Group {
   private mouseDownPointer: fabric.Point | undefined;
 
   private fabricText: fabric.IText = new fabric.IText("");
   private dropDown: fabric.Image = new fabric.Image(loadedDropDownEle);
 
-  constructor(private text: string, private onMenuOpen: Function = () => {}) {
+  constructor(
+    private text: string,
+    cood: Coodinate = { left: 0, top: 0 },
+    private onMenuOpen: Function = () => {}
+  ) {
     super();
 
-    this.fabricText = new fabric.IText(text);
+    this.fabricText = new fabric.IText(text, cood);
     this.dropDown.set({
       left: this.fabricText.left! + this.fabricText.width!,
       top:

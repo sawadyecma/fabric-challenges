@@ -51,7 +51,7 @@ const menus = [
   "メニュー3",
   "メニュー4",
 ];
-const menu = new Menu("メニュー1", () => {
+const menu = new Menu("メニュー1", { left: 100, top: 100 }, () => {
   const mTxt = menus[Math.floor(Math.random() * menus.length)];
   menu.setText(mTxt);
 
@@ -60,7 +60,7 @@ const menu = new Menu("メニュー1", () => {
 
 canvas.add(menu);
 
-const menu2 = new Menu("メニュー2", () => {
+const menu2 = new Menu("メニュー2", undefined, () => {
   const mTxt = menus[Math.floor(Math.random() * menus.length)];
   menu2.setText(mTxt);
 
