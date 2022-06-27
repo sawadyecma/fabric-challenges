@@ -18,11 +18,10 @@ export class Checkbox extends fabric.Group {
 
   constructor(checked: boolean) {
     super();
-    if (checked) {
-      checkboxOn.forEachObject((o) => {
-        this.addWithUpdate(o);
-      });
-    }
+    const target = checked ? checkboxOn : checkboxOff;
+    target.forEachObject((o) => {
+      this.addWithUpdate(o);
+    });
     this.checked = checked;
   }
 

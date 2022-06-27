@@ -36,13 +36,11 @@ checkboxOff.set({ left: 200, top: 0 });
 canvas.add(checkboxOff);
 
 const checkboxOff1 = new Checkbox(false);
-checkboxOff1.set({ left: 200, top: 10 });
-checkboxOff1.scaleToHeight(100);
-checkboxOff1.scaleToWidth(200);
+checkboxOff1.set({ left: 200, top: 200 });
 canvas.add(checkboxOff1);
 
 const checkboxOn = new Checkbox(true);
-checkboxOn.set({ left: 200, top: 40, scaleX: 2, scaleY: 3 });
+checkboxOn.set({ left: 200, top: 40 });
 canvas.add(checkboxOn);
 
 const svgArea = prepareToSvgArea(app);
