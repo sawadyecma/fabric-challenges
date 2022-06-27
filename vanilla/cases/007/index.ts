@@ -3,6 +3,7 @@ import { fabric } from "fabric";
 import { prepareToSvgArea } from "../common/prepareToSvgArea";
 import { composeSvg } from "../common/fabricModules/svg/svg";
 import { Checkbox } from "../common/fabricModules/svg/checkbox";
+import { Menu } from "../common/fabricModules/grp/menu";
 
 const { app, canvasEl } = startHook();
 
@@ -42,6 +43,18 @@ canvas.add(checkboxOff1);
 const checkboxOn = new Checkbox(true);
 checkboxOn.set({ left: 200, top: 40 });
 canvas.add(checkboxOn);
+
+const menu = new Menu("テキスト", () => {
+  alert("menu opened to ungroup");
+  const g = menu.ungroupOnCanvas();
+
+  g.forEachObject((obj) => {
+    canvas.add(obj);
+  });
+  canvas.remove(menu);
+});
+
+canvas.add(menu);
 
 const svgArea = prepareToSvgArea(app);
 
