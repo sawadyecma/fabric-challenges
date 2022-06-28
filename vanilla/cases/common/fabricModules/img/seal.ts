@@ -54,4 +54,9 @@ export class Seal extends fabric.Image {
 
     this.scaleToWidth(oldWidth);
   }
+
+  exportCood() {
+    const rect = this.getBoundingRect();
+    return rect;
+  }
 }

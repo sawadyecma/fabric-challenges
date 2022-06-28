@@ -36,6 +36,8 @@ app.appendChild(toSvgButton);
 function onToSvgButtonClick() {
   const svg = canvas.toSVG() ?? "";
   svgArea.innerHTML = svg;
+  const cood = seal.exportCood();
+  console.log(cood);
 }
 
 export {};
