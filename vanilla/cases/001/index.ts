@@ -12,6 +12,9 @@ const rect = new fabric.Rect({
   height: 70,
   fill: "red",
 });
+
+// rect.scaleToHeight(140);
+// rect.scaleToWidth(10);
 canvas.add(rect);
 
 canvas.add(
