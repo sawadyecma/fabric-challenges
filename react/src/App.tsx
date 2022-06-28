@@ -1,15 +1,6 @@
-import {
-  Button,
-  Footer,
-  Header,
-  Menu,
-  Text,
-  Anchor,
-  Main,
-  Heading,
-  Paragraph,
-} from "grommet";
+import { Button, Footer, Header, Menu, Text, Anchor, Main, Box } from "grommet";
 import * as Icons from "grommet-icons";
+import { GuiEditor } from "./GuiEditor";
 import { Slider } from "./Slider";
 
 export const App = () => {
@@ -19,10 +10,11 @@ export const App = () => {
         <Button icon={<Icons.Home />} hoverIndicator />
         <Menu label="account" items={[{ label: "logout" }]} />
       </Header>
-      <Main pad="large">
-        <Heading>Something</Heading>
-        <Paragraph>Something about something</Paragraph>
+      <Main pad="small">
         <Slider />
+        <Box height="600px" width="600px">
+          <GuiEditor />
+        </Box>
       </Main>
       <Footer background="brand" pad="medium">
         <Text>Copyright</Text>
