@@ -6,7 +6,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "fabric": "4.3",
+    "fabric": "^4.3.1",
     "grommet": "^2.24.0",
     "grommet-icons": "^4.7.0",
     "react": "^18.0.0",

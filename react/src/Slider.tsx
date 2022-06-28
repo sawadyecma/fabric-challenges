@@ -1,18 +1,14 @@
 import * as Icons from "grommet-icons";
 import { Box, Button, RangeInput } from "grommet";
-import { ChangeEvent, useState } from "react";
 
-const min = 5;
-const max = 25;
+interface Props {
+  min?: number;
+  max?: number;
+  onChange: (value: number) => void;
+  value: number;
+}
 
-export const Slider = () => {
-  const [value, setValue] = useState(10);
-
-  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const newValue = parseInt(event.target.value);
-    setValue(newValue);
-  };
-
+export const Slider = ({ min = 5, max = 25, value, onChange }: Props) => {
   return (
     <Box direction="row" align="center" gap="small">
       <Button
@@ -20,7 +16,7 @@ export const Slider = () => {
         disabled={value <= min}
         icon={<Icons.Subtract color="neutral-2" />}
         onClick={() => {
-          setValue((value) => value - 1);
+          onChange(value - 1);
         }}
       />
       <Box align="center" width="small">
@@ -29,7 +25,7 @@ export const Slider = () => {
           max={max}
           step={1}
           value={value}
-          onChange={onChange}
+          onChange={(e) => onChange(parseInt(e.target.value))}
         />
       </Box>
       <Button
@@ -37,7 +33,7 @@ export const Slider = () => {
         disabled={value >= max}
         icon={<Icons.Add color="neutral-2" />}
         onClick={() => {
-          setValue((value) => value + 1);
+          onChange(value + 1);
         }}
       />
     </Box>
