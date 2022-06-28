@@ -33,11 +33,39 @@ blueRect.on("mouse:down", () => {
   console.log("here!!");
 });
 
-const text1 = new fabric.IText("編集可能テキスト1");
+const text1 = new fabric.IText("編集可能テキスト1", { fontSize: 4 });
 canvas.add(text1);
 
-const text2 = new fabric.IText("フォントサイズ指定テキスト", { fontSize: 16 });
+const text2 = new fabric.Textbox("フォントサイズ指定テキスト", {
+  fontSize: 16,
+  // lineHeight: 16,
+  width: 100,
+  // height: 40,
+  // dynamicMinWidth: 100,
+  // minWidth: 100,
+  // noScaleCache: true,
+  splitByGrapheme: true,
+  // isWrapping: true,
+});
+text2.setControlsVisibility({
+  tr: false,
+  tl: false,
+  br: false,
+  bl: false,
+  mt: false,
+  mb: false,
+  mtr: false,
+});
+
+console.log(text2.calcTextHeight());
+console.log(text2.measureLine(0));
+
 canvas.add(text2);
+
+// canvas.on("text:changed", function () {
+//   console.log(text2.text!);
+//   text2.set("text", text2.text!);
+// });
 
 const checkboxOff1 = new Checkbox(false);
 checkboxOff1.set({ left: 200, top: 200 });
