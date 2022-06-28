@@ -59,4 +59,12 @@ export class Seal extends fabric.Image {
     const rect = this.getBoundingRect();
     return rect;
   }
+
+  /** @override */
+  toSVG(): string {
+    if (this.pressedImgEle) {
+      return super.toSVG();
+    }
+    return "";
+  }
 }

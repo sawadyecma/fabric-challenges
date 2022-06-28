@@ -26,6 +26,20 @@ const seal = new Seal(
 
 canvas.add(seal);
 
+const seal2 = new Seal(
+  { x: 300, y: 100, len: 100 },
+  undefined,
+  undefined,
+  () => {
+    seal2.press(pressedSealImageEle);
+  },
+  () => {
+    canvas.renderAll();
+  }
+);
+
+canvas.add(seal2);
+
 const svgArea = prepareToSvgArea(app);
 
 const toSvgButton = document.createElement("button");
