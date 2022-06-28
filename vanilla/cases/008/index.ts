@@ -54,4 +54,18 @@ function onToSvgButtonClick() {
   console.log(cood);
 }
 
+const toggleEditableButton = document.createElement("button");
+toggleEditableButton.innerText = "toggleEditable";
+toggleEditableButton.addEventListener("click", onToggleEditableButtonClick);
+app.appendChild(toggleEditableButton);
+
+let editable = true;
+
+function onToggleEditableButtonClick() {
+  editable = !editable;
+  (canvas.getObjects() as Seal[]).forEach((obj) => {
+    obj.setEditable(editable);
+  });
+}
+
 export {};

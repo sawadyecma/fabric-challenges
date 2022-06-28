@@ -1,4 +1,5 @@
 import { fabric } from "fabric";
+import { applyEditable } from "../editable";
 import { composeImgEle } from "./imgEle";
 
 const emptySealImageEle = await composeImgEle("/icons/seal/empty.svg");
@@ -17,7 +18,8 @@ export class Seal extends fabric.Image {
     private pressedImgEle?: HTMLImageElement,
     options?: fabric.IImageOptions,
     private onPress?: () => void,
-    private renderCallback?: Function
+    private renderCallback?: Function,
+    private editable: boolean = true
   ) {
     super(pressedImgEle ?? emptySealImageEle, {
       left: cood.x,
@@ -25,6 +27,7 @@ export class Seal extends fabric.Image {
       ...options,
     });
     this.scaleToHeight(cood.len);
+    applyEditable(this, editable);
 
     this.on("mousedown", this.onMouseDown);
     this.on("mouseup", this.onMouseUp);
@@ -36,6 +39,10 @@ export class Seal extends fabric.Image {
 
   onMouseUp(e: fabric.IEvent) {
     if (this.pressedImgEle) {
+      return;
+    }
+
+    if (!this.editable) {
       return;
     }
 
@@ -66,5 +73,10 @@ export class Seal extends fabric.Image {
       return super.toSVG();
     }
     return "";
+  }
+
+  setEditable(editable: boolean) {
+    applyEditable(this, editable);
+    this.editable = editable;
   }
 }
