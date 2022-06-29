@@ -10,7 +10,7 @@ export const App = () => {
         <Menu label="account" items={[{ label: "logout" }]} />
       </Header>
       <Main pad="small">
-        <Box height="600px" width="600px">
+        <Box height="700px" width="600px">
           <GuiEditor />
         </Box>
       </Main>

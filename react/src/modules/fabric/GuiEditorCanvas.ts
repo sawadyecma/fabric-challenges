@@ -14,10 +14,15 @@ export class GuiEditorCanvas {
 
   private editable: boolean = true;
 
+  private mouseDownPointer?: fabric.Point;
+
+  private stagingObj?: fabric.Object;
+
   constructor(
     canvasEle: HTMLCanvasElement,
     style: { width: number; height: number },
-    private onChange: (data: fabric.Object[]) => void
+    private onChange: (data: fabric.Object[]) => void,
+    private onMouseUpCallback: () => void
   ) {
     this.fabricCanvas = new fabric.Canvas(canvasEle, {
       backgroundColor: "grey",
@@ -35,14 +40,41 @@ export class GuiEditorCanvas {
     this.fabricCanvas.add(this.bgImg);
 
     this.fabricCanvas.renderAll();
+
     this.fabricCanvas.on(
       FABRIC_EVENT.ObjectModified,
       this.onObjectModified.bind(this)
     );
+    this.fabricCanvas.on(FABRIC_EVENT.MouseDown, this.onMouseDown.bind(this));
+    this.fabricCanvas.on(FABRIC_EVENT.MouseUp, this.onMouseUp.bind(this));
   }
 
   onObjectModified(e: fabric.IEvent<Event>) {
     this.onChange([this.bgImg, ...this.assets]);
+  }
+
+  onMouseDown(e: fabric.IEvent) {
+    this.mouseDownPointer = e.absolutePointer;
+  }
+
+  onMouseUp(e: fabric.IEvent) {
+    if (!this.editable) return;
+    if (!this.mouseDownPointer?.eq(e.absolutePointer!)) {
+      return;
+    }
+
+    if (!this.stagingObj) {
+      return;
+    }
+
+    this.stagingObj.set({ left: e.pointer?.x, top: e.pointer?.y });
+
+    this.fabricCanvas.add(this.stagingObj);
+    this.assets.push(this.stagingObj);
+    this.fabricCanvas.renderAll();
+    this.onMouseUpCallback();
+
+    this.stagingObj = undefined;
   }
 
   setBgImg(imgEle: HTMLImageElement) {
@@ -112,5 +144,9 @@ export class GuiEditorCanvas {
     }
     this.fabricCanvas.remove(this.groupForViewer);
     this.groupForViewer.ungroupOnCanvas();
+  }
+
+  setStagingObj(stagingObj: fabric.Object) {
+    this.stagingObj = stagingObj;
   }
 }

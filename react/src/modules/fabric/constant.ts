@@ -24,4 +24,6 @@ export const onlyScaleControl: ControlVisibility = {
 
 export const FABRIC_EVENT = {
   ObjectModified: "object:modified",
+  MouseDown: "mouse:down",
+  MouseUp: "mouse:up",
 } as const;
