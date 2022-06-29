@@ -1,6 +1,6 @@
 import { Button, Footer, Header, Menu, Text, Anchor, Main, Box } from "grommet";
 import * as Icons from "grommet-icons";
-import { GuiEditor } from "./GuiEditor";
+import { GuiEditor } from "./components/Editor/GuiEditor";
 
 export const App = () => {
   return (

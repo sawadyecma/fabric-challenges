@@ -1,11 +1,13 @@
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
-import { GuiEditorCanvas } from "./modules/fabric/GuiEditorCanvas";
-import { composeImgEle } from "./modules/img/imgEle";
-import { CanvasZoomControl } from "./components/CanvasZoomControl";
+import { GuiEditorCanvas } from "../../modules/fabric/GuiEditorCanvas";
+import { composeImgEle } from "../../modules/img/imgEle";
+import { CanvasZoomControl } from "../CanvasZoomControl";
+import { Checkbox } from "../../modules/fabric/assets/CheckBox";
+import { setAssets } from "./setAsset";
 
 export const GuiEditor = () => {
-  const guiEditorRef = useRef<GuiEditorCanvas | undefined>();
+  const guiEditorRef = useRef<GuiEditorCanvas>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -25,20 +27,7 @@ export const GuiEditor = () => {
     const guiEditor = guiEditorRef.current;
 
     (async () => {
-      const imgEle = await composeImgEle(
-        "https://image.shutterstock.com/image-vector/abstract-image-lighting-flare-set-600w-298506671.jpg"
-      );
-      guiEditor.setBgImg(imgEle);
-      const bgImgRect = guiEditor.bgImgBoundingRect;
-
-      const rect = new fabric.Rect({
-        left: bgImgRect.left,
-        top: bgImgRect.top,
-        width: 100,
-        height: 100,
-        fill: "blue",
-      });
-      guiEditor.add(rect);
+      await setAssets(guiEditor);
     })();
 
     return () => {
