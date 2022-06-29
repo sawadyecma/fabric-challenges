@@ -91,6 +91,7 @@ export class GuiEditorCanvas {
   }
 
   changeMode(editable: boolean) {
+    if (this.editable === editable) return;
     this.editable = editable;
 
     if (!editable) {

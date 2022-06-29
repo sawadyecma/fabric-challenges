@@ -1,4 +1,4 @@
-import { Box, Button } from "grommet";
+import { Box, Button, CheckBox } from "grommet";
 import { useEffect, useRef } from "react";
 import { GuiEditorCanvas } from "../../modules/fabric/GuiEditorCanvas";
 import { CanvasZoomControl } from "../CanvasZoomControl";
@@ -50,12 +50,11 @@ export const GuiEditor = () => {
       ></canvas>
       <CanvasZoomControl zoomCanvasRef={guiEditorRef} />
       <Box direction="row" align="center" gap="small">
-        <Button primary onClick={() => onViewClick(false)}>
-          Viewer
-        </Button>
-        <Button primary onClick={() => onViewClick(true)}>
-          Editor
-        </Button>
+        <CheckBox
+          label="Editable"
+          toggle
+          onClick={(e) => onViewClick(e.currentTarget.checked)}
+        />
       </Box>
     </>
   );
