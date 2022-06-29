@@ -13,7 +13,7 @@ export const GuiEditor = () => {
       return;
     }
 
-    guiEditorRef.current?.changeMode(editale);
+    guiEditorRef.current.changeMode(editale);
   };
 
   useEffect(() => {
