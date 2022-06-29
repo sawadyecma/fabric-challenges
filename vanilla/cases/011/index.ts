@@ -50,13 +50,13 @@ function onMenuOpen(cood: { x: number; y: number }) {
   selector.style.display = opened ? "block" : "none";
   selector.style.position = "absolute";
 
-  const x = canvasEl.clientTop + cood.x;
-  const y = canvasEl.clientLeft + cood.y;
+  const { left, top } = canvasEl.getClientRects()[0];
 
-  console.log(x, y);
+  const x = left + cood.x;
+  const y = top + cood.y;
 
-  selector.style.top = `${x}px`;
-  selector.style.left = `${y}px`;
+  selector.style.left = `${x}px`;
+  selector.style.top = `${y}px`;
 }
 
 function onObjectMovingCallback() {

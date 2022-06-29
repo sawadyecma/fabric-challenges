@@ -42,7 +42,8 @@ export class Menu extends fabric.Group {
 
   onMouseUp(e: fabric.IEvent<Event>) {
     if (e.absolutePointer?.eq(this.mouseDownPointer!)) {
-      this.onMenuOpen({ x: e.pointer?.x ?? 0, y: e.pointer?.y ?? 0 });
+      const { left, top, height } = this.getBoundingRect();
+      this.onMenuOpen({ x: left, y: top + height });
     }
     this.mouseDownPointer = undefined;
   }
