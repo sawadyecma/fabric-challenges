@@ -1,4 +1,5 @@
 import { fabric } from "fabric";
+import { FABRIC_EVENT } from "./constant";
 
 export class GuiEditorCanvas {
   private bgImg: fabric.Image;
@@ -7,7 +8,10 @@ export class GuiEditorCanvas {
 
   private rate: number = 1;
 
-  constructor(private fabricCanvas: fabric.Canvas) {
+  constructor(
+    private fabricCanvas: fabric.Canvas,
+    private onChange: (data: any) => void
+  ) {
     this.bgImg = new fabric.Image("", {
       selectable: false,
       hasControls: false,
@@ -18,6 +22,14 @@ export class GuiEditorCanvas {
     this.fabricCanvas.add(this.bgImg);
 
     this.fabricCanvas.renderAll();
+    this.fabricCanvas.on(
+      FABRIC_EVENT.ObjectModified,
+      this.onObjectModified.bind(this)
+    );
+  }
+
+  onObjectModified(e: fabric.IEvent<Event>) {
+    this.onChange([this.bgImg, ...this.assets]);
   }
 
   setBgImg(imgEle: HTMLImageElement) {

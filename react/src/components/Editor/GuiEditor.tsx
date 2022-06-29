@@ -22,7 +22,9 @@ export const GuiEditor = () => {
       height: clientHeight,
     });
 
-    guiEditorRef.current = new GuiEditorCanvas(fabricCanvas);
+    guiEditorRef.current = new GuiEditorCanvas(fabricCanvas, (data) => {
+      console.log(data);
+    });
 
     const guiEditor = guiEditorRef.current;
 

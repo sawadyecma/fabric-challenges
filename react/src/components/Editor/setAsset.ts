@@ -2,9 +2,15 @@ import { GuiEditorCanvas } from "../../modules/fabric/GuiEditorCanvas";
 import { composeImgEle } from "../../modules/img/imgEle";
 import { fabric } from "fabric";
 import { Checkbox } from "../../modules/fabric/assets/CheckBox";
+import { FABRIC_EVENT } from "../../modules/fabric/constant";
 
 export async function setAssets(guiEditor: GuiEditorCanvas) {
-  const renderCallback = () => guiEditor.getFabricCanvas().renderAll();
+  const renderCallback = () => {
+    guiEditor.getFabricCanvas().renderAll();
+    guiEditor
+      .getFabricCanvas()
+      .fire(FABRIC_EVENT.ObjectModified, { event: "renderCallback" });
+  };
 
   const imgEle = await composeImgEle(
     "https://image.shutterstock.com/image-vector/abstract-image-lighting-flare-set-600w-298506671.jpg"

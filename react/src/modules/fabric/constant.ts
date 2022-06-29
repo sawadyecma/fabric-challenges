@@ -21,3 +21,7 @@ export const onlyScaleControl: ControlVisibility = {
   tr: true,
   mtr: false,
 };
+
+export const FABRIC_EVENT = {
+  ObjectModified: "object:modified",
+} as const;
