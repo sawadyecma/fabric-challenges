@@ -48,8 +48,8 @@ export const GuiEditor = () => {
         style={{ width: "100%", height: "100%" }}
         ref={canvasRef}
       ></canvas>
-      <CanvasZoomControl zoomCanvasRef={guiEditorRef} />
       <Box direction="row" align="center" gap="small">
+        <CanvasZoomControl zoomCanvasRef={guiEditorRef} />
         <CheckBox
           label="Editable"
           toggle
