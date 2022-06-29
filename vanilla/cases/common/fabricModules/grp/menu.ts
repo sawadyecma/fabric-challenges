@@ -17,7 +17,7 @@ export class Menu extends fabric.Group {
   constructor(
     private text: string,
     cood: Coodinate = { left: 0, top: 0 },
-    private onMenuOpen: Function = () => {}
+    private onMenuOpen: (cood: { x: number; y: number }) => void
   ) {
     super();
 
@@ -42,7 +42,7 @@ export class Menu extends fabric.Group {
 
   onMouseUp(e: fabric.IEvent<Event>) {
     if (e.absolutePointer?.eq(this.mouseDownPointer!)) {
-      this.onMenuOpen();
+      this.onMenuOpen({ x: e.pointer?.x ?? 0, y: e.pointer?.y ?? 0 });
     }
     this.mouseDownPointer = undefined;
   }
