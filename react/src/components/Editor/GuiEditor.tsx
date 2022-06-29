@@ -23,10 +23,16 @@ export const GuiEditor = () => {
   };
 
   const onAssetChange = (asset: Asset) => {
-    setNewAsset(asset);
     if (!guiEditorRef.current) {
       return;
     }
+
+    if (newAsset === asset) {
+      setNewAsset("none");
+      guiEditorRef.current.setStagingObj(undefined);
+      return;
+    }
+    setNewAsset(asset);
 
     if (asset === "checkbox") {
       const checkbox = new AssetCheckbox(false, { x: 0, y: 0, len: 50 }, () => {
@@ -92,7 +98,7 @@ export const GuiEditor = () => {
           gap="xsmall"
           options={["rect", "checkbox"]}
           value={newAsset}
-          onChange={(event) => onAssetChange(event.target.value as Asset)}
+          onClick={(event) => onAssetChange(event.target.value as Asset)}
         ></RadioButtonGroup>
       </Box>
     </>

@@ -146,7 +146,7 @@ export class GuiEditorCanvas {
     this.groupForViewer.ungroupOnCanvas();
   }
 
-  setStagingObj(stagingObj: fabric.Object) {
+  setStagingObj(stagingObj?: fabric.Object) {
     this.stagingObj = stagingObj;
   }
 }
