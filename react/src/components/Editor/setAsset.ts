@@ -47,4 +47,6 @@ export async function setAssets(guiEditor: GuiEditorCanvas) {
   }
 
   guiEditor.getFabricCanvas().renderAll();
+
+  guiEditor.commitObjectAdd();
 }

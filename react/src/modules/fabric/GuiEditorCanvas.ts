@@ -10,6 +10,10 @@ export class GuiEditorCanvas {
 
   private rate: number = 1;
 
+  private groupForViewer?: fabric.Group;
+
+  private editable: boolean = true;
+
   constructor(
     canvasEle: HTMLCanvasElement,
     style: { width: number; height: number },
@@ -61,7 +65,10 @@ export class GuiEditorCanvas {
   zoom(rate: number) {
     this.fabricCanvas.discardActiveObject();
 
-    const targets = [...this.assets, this.bgImg];
+    const targets: fabric.Object[] = this.editable
+      ? [...this.assets, this.bgImg]
+      : [this.groupForViewer!];
+
     const group = new fabric.Group(targets, {
       originX: "center",
       originY: "center",
@@ -77,5 +84,30 @@ export class GuiEditorCanvas {
 
   getFabricCanvas() {
     return this.fabricCanvas;
+  }
+
+  commitObjectAdd() {
+    this.changeMode(false);
+  }
+
+  changeMode(editable: boolean) {
+    this.editable = editable;
+
+    if (!editable) {
+      this.fabricCanvas.discardActiveObject();
+
+      this.groupForViewer = new fabric.Group([this.bgImg, ...this.assets], {
+        hasControls: false,
+      });
+      this.fabricCanvas.add(this.groupForViewer);
+      this.fabricCanvas.renderAll();
+      return;
+    }
+
+    if (!this.groupForViewer) {
+      return;
+    }
+    this.fabricCanvas.remove(this.groupForViewer);
+    this.groupForViewer.ungroupOnCanvas();
   }
 }
