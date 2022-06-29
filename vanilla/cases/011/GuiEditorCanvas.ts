@@ -67,4 +67,8 @@ export class GuiEditorCanvas {
   renderAll() {
     this.fabricCanvas.renderAll();
   }
+
+  getFabricCanvas() {
+    return this.fabricCanvas;
+  }
 }

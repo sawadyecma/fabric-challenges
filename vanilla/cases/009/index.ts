@@ -1,6 +1,6 @@
 import { startHook } from "../common/startHook";
 import { fabric } from "fabric";
-import { prepareToSvgArea } from "../common/prepareToSvgArea";
+import { addToSvgControl } from "../common/fabricModules/hook-components/toSvg";
 
 const { app, canvasEl } = startHook();
 
@@ -26,17 +26,7 @@ const blueRect = new fabric.Rect({
 
 canvas.add(redRect, blueRect);
 
-const svgArea = prepareToSvgArea(app);
-
-const toSvgButton = document.createElement("button");
-toSvgButton.innerText = "toSvg";
-toSvgButton.addEventListener("click", onToSvgButtonClick);
-app.appendChild(toSvgButton);
-
-function onToSvgButtonClick() {
-  const svg = canvas.toSVG() ?? "";
-  svgArea.innerHTML = svg;
-}
+addToSvgControl(app, canvas);
 
 let zoom = 1;
 

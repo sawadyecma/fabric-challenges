@@ -2,6 +2,8 @@ import { startHook } from "../common/startHook";
 import { GuiEditorCanvas } from "./GuiEditorCanvas";
 import { composeImgEle } from "../common/fabricModules/img/imgEle";
 import { Menu } from "../common/fabricModules/grp/menu";
+import { addZoomControl } from "../common/fabricModules/hook-components/zoomControl";
+import { addToSvgControl } from "../common/fabricModules/hook-components/toSvg";
 
 const { app, canvasEl } = startHook();
 
@@ -97,35 +99,6 @@ function onMenuMoving(cood: { x: number; y: number }) {
   selector.style.top = `${y}px`;
 }
 
-//
-//
-//
-{
-  let zoom = 1;
-
-  const zoomDownButton = document.createElement("button");
-  zoomDownButton.innerText = "zoomDown";
-  zoomDownButton.addEventListener("click", onZoomDownButtonClick);
-  app.appendChild(zoomDownButton);
-
-  function onZoomDownButtonClick() {
-    zoom -= 0.1;
-    // canvas.setZoom(zoom);
-    guiEditor.zoom(zoom);
-    // canvas.zoomToPoint(new fabric.Point(100, 100), zoom);
-  }
-
-  const zoomUpButton = document.createElement("button");
-  zoomUpButton.innerText = "zoomUp";
-  zoomUpButton.addEventListener("click", onZoomUpButtonClick);
-  app.appendChild(zoomUpButton);
-
-  function onZoomUpButtonClick() {
-    zoom += 0.1;
-    // canvas.setZoom(zoom);
-    guiEditor.zoom(zoom);
-
-    // canvas.zoomToPoint(new fabric.Point(100, 100), zoom);
-  }
-}
+addZoomControl(app, guiEditor);
+addToSvgControl(app, guiEditor.getFabricCanvas());
 export {};
