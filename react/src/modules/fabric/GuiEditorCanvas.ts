@@ -23,6 +23,7 @@ export class GuiEditorCanvas {
       backgroundColor: "grey",
       width: style.width,
       height: style.height,
+      selection: false, // diasble group selection
     });
 
     this.bgImg = new fabric.Image("", {
