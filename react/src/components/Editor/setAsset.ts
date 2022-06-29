@@ -24,6 +24,7 @@ export async function setAssets(guiEditor: GuiEditorCanvas) {
     width: 50,
     height: 50,
     fill: "blue",
+    hoverCursor: "pointer",
   });
   guiEditor.add(rect);
 

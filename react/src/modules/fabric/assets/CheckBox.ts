@@ -18,7 +18,12 @@ export class Checkbox extends fabric.Image {
   constructor(checked: boolean, cood: Cood, private renderCallback: Function) {
     const targetEle = checked ? checkboxOnImageEle : checkboxOffImageEle;
 
-    super(targetEle, { left: cood.x, top: cood.y });
+    super(targetEle, {
+      left: cood.x,
+      top: cood.y,
+      // TODO to constant
+      hoverCursor: "pointer",
+    });
     this.setControlsVisibility(onlyScaleControl);
 
     this.checked = checked;

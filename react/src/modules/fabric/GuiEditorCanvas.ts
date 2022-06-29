@@ -24,6 +24,7 @@ export class GuiEditorCanvas {
       width: style.width,
       height: style.height,
       selection: false, // diasble group selection
+      hoverCursor: "grabbing",
     });
 
     this.bgImg = new fabric.Image("", {
