@@ -1,9 +1,6 @@
-import { MutableRefObject, useEffect, useRef, useState } from "react";
-import { fabric } from "fabric";
+import { useEffect, useRef } from "react";
 import { GuiEditorCanvas } from "../../modules/fabric/GuiEditorCanvas";
-import { composeImgEle } from "../../modules/img/imgEle";
 import { CanvasZoomControl } from "../CanvasZoomControl";
-import { Checkbox } from "../../modules/fabric/assets/CheckBox";
 import { setAssets } from "./setAsset";
 
 export const GuiEditor = () => {
@@ -16,21 +13,20 @@ export const GuiEditor = () => {
     }
     const { clientWidth, clientHeight } = canvasRef.current;
 
-    const fabricCanvas = new fabric.Canvas(canvasRef.current, {
-      backgroundColor: "grey",
-      width: clientWidth,
-      height: clientHeight,
-    });
-
-    guiEditorRef.current = new GuiEditorCanvas(fabricCanvas, (data) => {
-      console.log(data);
-    });
+    guiEditorRef.current = new GuiEditorCanvas(
+      canvasRef.current,
+      {
+        width: clientWidth,
+        height: clientHeight,
+      },
+      (data) => {
+        console.log(data);
+      }
+    );
 
     const guiEditor = guiEditorRef.current;
 
-    (async () => {
-      await setAssets(guiEditor);
-    })();
+    setAssets(guiEditor);
 
     return () => {
       guiEditor.getFabricCanvas().dispose();

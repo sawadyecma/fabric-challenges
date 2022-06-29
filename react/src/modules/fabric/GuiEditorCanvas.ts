@@ -2,6 +2,8 @@ import { fabric } from "fabric";
 import { FABRIC_EVENT } from "./constant";
 
 export class GuiEditorCanvas {
+  private fabricCanvas: fabric.Canvas;
+
   private bgImg: fabric.Image;
 
   private assets: fabric.Object[] = [];
@@ -9,14 +11,19 @@ export class GuiEditorCanvas {
   private rate: number = 1;
 
   constructor(
-    private fabricCanvas: fabric.Canvas,
-    private onChange: (data: any) => void
+    canvasEle: HTMLCanvasElement,
+    style: { width: number; height: number },
+    private onChange: (data: fabric.Object[]) => void
   ) {
+    this.fabricCanvas = new fabric.Canvas(canvasEle, {
+      backgroundColor: "grey",
+      width: style.width,
+      height: style.height,
+    });
+
     this.bgImg = new fabric.Image("", {
       selectable: false,
       hasControls: false,
-      hoverCursor: "grab",
-      moveCursor: "grabbing",
     });
 
     this.fabricCanvas.add(this.bgImg);
