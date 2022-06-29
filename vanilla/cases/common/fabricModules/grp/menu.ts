@@ -17,7 +17,9 @@ export class Menu extends fabric.Group {
   constructor(
     private text: string,
     cood: Coodinate = { left: 0, top: 0 },
-    private onMenuOpen: (cood: { x: number; y: number }) => void
+    private onMenuOpen: (self: Menu, cood: { x: number; y: number }) => void,
+    private onMovingCallback: (cood: { x: number; y: number }) => void,
+    private onDelelectedCallback: Function
   ) {
     super();
 
@@ -34,6 +36,8 @@ export class Menu extends fabric.Group {
 
     this.on("mousedown", this.onMouseDown);
     this.on("mouseup", this.onMouseUp);
+    this.on("moving", this.onMoving);
+    this.on("deselected", this.onDelelected);
   }
 
   onMouseDown(e: fabric.IEvent<Event>) {
@@ -43,9 +47,18 @@ export class Menu extends fabric.Group {
   onMouseUp(e: fabric.IEvent<Event>) {
     if (e.absolutePointer?.eq(this.mouseDownPointer!)) {
       const { left, top, height } = this.getBoundingRect();
-      this.onMenuOpen({ x: left, y: top + height });
+      this.onMenuOpen(this, { x: left, y: top + height });
     }
     this.mouseDownPointer = undefined;
+  }
+
+  onMoving(_: fabric.IEvent<Event>) {
+    const { left, top, height } = this.getBoundingRect();
+    this.onMovingCallback({ x: left, y: top + height });
+  }
+
+  onDelelected() {
+    this.onDelelectedCallback();
   }
 
   getText() {

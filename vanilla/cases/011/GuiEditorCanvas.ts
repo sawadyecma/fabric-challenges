@@ -9,10 +9,7 @@ export class GuiEditorCanvas {
 
   private rate: number = 1;
 
-  constructor(
-    canvasEl: HTMLCanvasElement,
-    private onObjectMovingCallback: Function = () => {}
-  ) {
+  constructor(canvasEl: HTMLCanvasElement) {
     this.fabricCanvas = new fabric.Canvas(canvasEl, {
       backgroundColor: "grey",
     });
@@ -27,7 +24,6 @@ export class GuiEditorCanvas {
     this.fabricCanvas.add(this.bgImg);
 
     this.fabricCanvas.renderAll();
-    this.fabricCanvas.on("object:moving", this.onObjectMoving.bind(this));
   }
 
   async setBgImg(imgEle: HTMLImageElement) {
@@ -51,7 +47,7 @@ export class GuiEditorCanvas {
   }
 
   zoom(rate: number) {
-    // this.fabricCanvas.discardActiveObject();
+    this.fabricCanvas.discardActiveObject();
 
     const targets = [...this.assets, this.bgImg];
     const group = new fabric.Group(targets, {
@@ -70,9 +66,5 @@ export class GuiEditorCanvas {
 
   renderAll() {
     this.fabricCanvas.renderAll();
-  }
-
-  onObjectMoving(_: fabric.IEvent<Event>) {
-    this.onObjectMovingCallback();
   }
 }
