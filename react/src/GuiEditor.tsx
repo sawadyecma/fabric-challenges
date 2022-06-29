@@ -1,28 +1,23 @@
-import { useEffect, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
 import { GuiEditorCanvas } from "./modules/fabric/GuiEditorCanvas";
 import { composeImgEle } from "./modules/img/imgEle";
-import { Slider } from "./Slider";
+import { CanvasZoomControl } from "./components/CanvasZoomControl";
 
 export const GuiEditor = () => {
+  const guiEditorRef = useRef<GuiEditorCanvas | undefined>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const guiEditorRef = useRef<GuiEditorCanvas>();
-  const [zoomRate, setZoomRate] = useState(1);
-  const onZoomChange = (value: number) => {
-    const rate = value / 10;
-    setZoomRate(rate);
-    guiEditorRef.current?.zoom(rate);
-  };
 
   useEffect(() => {
     if (!canvasRef.current) {
       return;
     }
+    const { clientWidth, clientHeight } = canvasRef.current;
 
     const fabricCanvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: "grey",
-      width: canvasRef.current.clientWidth,
-      height: canvasRef.current.clientHeight,
+      width: clientWidth,
+      height: clientHeight,
     });
 
     guiEditorRef.current = new GuiEditorCanvas(fabricCanvas);
@@ -45,6 +40,10 @@ export const GuiEditor = () => {
       });
       guiEditor.add(rect);
     })();
+
+    return () => {
+      guiEditor.getFabricCanvas().dispose();
+    };
   }, []);
 
   return (
@@ -53,7 +52,7 @@ export const GuiEditor = () => {
         style={{ width: "100%", height: "100%" }}
         ref={canvasRef}
       ></canvas>
-      <Slider value={zoomRate * 10} onChange={onZoomChange} />
+      <CanvasZoomControl zoomCanvasRef={guiEditorRef} />
     </>
   );
 };

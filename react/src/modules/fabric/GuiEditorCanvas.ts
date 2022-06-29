@@ -1,28 +1,33 @@
 import { fabric } from "fabric";
 
 export class GuiEditorCanvas {
-  private bgImg: fabric.Image = new fabric.Image("", {
-    selectable: false,
-  });
+  private bgImg: fabric.Image;
 
   private assets: fabric.Object[] = [];
 
   private rate: number = 1;
 
   constructor(private fabricCanvas: fabric.Canvas) {
+    this.bgImg = new fabric.Image("", {
+      selectable: false,
+      hasControls: false,
+      hoverCursor: "grab",
+      moveCursor: "grabbing",
+    });
+
     this.fabricCanvas.add(this.bgImg);
 
     this.fabricCanvas.renderAll();
   }
 
-  async setBgImg(imgEle: HTMLImageElement) {
+  setBgImg(imgEle: HTMLImageElement) {
     this.bgImg.setElement(imgEle, {
       crossOrigin: "anonymous",
     });
-    this.bgImg.scale(0.9);
 
     this.fabricCanvas.centerObject(this.bgImg);
     this.fabricCanvas.sendToBack(this.bgImg);
+    this.zoom(0.8);
   }
 
   get bgImgBoundingRect() {
@@ -35,7 +40,9 @@ export class GuiEditorCanvas {
   }
 
   zoom(rate: number) {
-    const targets = [this.bgImg, ...this.assets];
+    this.fabricCanvas.discardActiveObject();
+
+    const targets = [...this.assets, this.bgImg];
     const group = new fabric.Group(targets, {
       originX: "center",
       originY: "center",
@@ -47,5 +54,9 @@ export class GuiEditorCanvas {
     this.rate = rate;
 
     this.fabricCanvas.renderAll();
+  }
+
+  getFabricCanvas() {
+    return this.fabricCanvas;
   }
 }
