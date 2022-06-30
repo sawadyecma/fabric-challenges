@@ -1,6 +1,8 @@
 import { fabric } from "fabric";
 import { onlyScaleControl } from "../constant";
 import { composeImgEle } from "../imgUtil";
+import { Asset, AssetType } from "./type";
+import { uuidv4 } from "./util";
 
 const checkboxOffImageEle = await composeImgEle("/icons/checkbox/off.svg");
 const checkboxOnImageEle = await composeImgEle("/icons/checkbox/on.svg");
@@ -11,9 +13,18 @@ type Cood = {
   len: number;
 };
 
-export class Checkbox extends fabric.Image {
+export class Checkbox extends fabric.Image implements Asset {
   private checked: boolean = false;
   private mouseDownPointer: fabric.Point | undefined;
+  private _placementId: string;
+
+  get kind(): AssetType {
+    return "checkbox";
+  }
+
+  get placementId(): string {
+    return this._placementId;
+  }
 
   constructor(checked: boolean, cood: Cood, private renderCallback: Function) {
     const targetEle = checked ? checkboxOnImageEle : checkboxOffImageEle;
@@ -25,6 +36,8 @@ export class Checkbox extends fabric.Image {
       hoverCursor: "pointer",
     });
     this.setControlsVisibility(onlyScaleControl);
+
+    this._placementId = uuidv4();
 
     this.checked = checked;
 

@@ -1,4 +1,5 @@
 import { fabric } from "fabric";
+import { Asset, AssetType } from "./assets/type";
 import { FABRIC_EVENT } from "./constant";
 
 export class GuiEditorCanvas {
@@ -6,7 +7,7 @@ export class GuiEditorCanvas {
 
   private bgImg: fabric.Image;
 
-  private assets: fabric.Object[] = [];
+  private assets: Asset[] = [];
 
   private rate: number = 1;
 
@@ -16,7 +17,7 @@ export class GuiEditorCanvas {
 
   private mouseDownPointer?: fabric.Point;
 
-  private stagingObj?: fabric.Object;
+  private stagingObj?: Asset;
 
   constructor(
     canvasEle: HTMLCanvasElement,
@@ -91,9 +92,9 @@ export class GuiEditorCanvas {
     return this.bgImg.getBoundingRect();
   }
 
-  add(obj: fabric.Object) {
-    this.fabricCanvas.add(obj);
-    this.assets.push(obj);
+  add(asset: Asset) {
+    this.fabricCanvas.add(asset);
+    this.assets.push(asset);
   }
 
   zoom(rate: number) {
@@ -146,7 +147,13 @@ export class GuiEditorCanvas {
     this.groupForViewer.ungroupOnCanvas();
   }
 
-  setStagingObj(stagingObj?: fabric.Object) {
+  setStagingObj(stagingObj?: Asset) {
     this.stagingObj = stagingObj;
+  }
+
+  getObjectByKindAndId(kind: AssetType, placementId: string) {
+    return this.assets.find(
+      (asset) => asset.kind === kind && asset.placementId === placementId
+    );
   }
 }

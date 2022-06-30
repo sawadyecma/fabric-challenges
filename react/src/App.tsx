@@ -1,6 +1,7 @@
 import { Button, Footer, Header, Menu, Text, Anchor, Main, Box } from "grommet";
 import * as Icons from "grommet-icons";
 import { GuiEditor } from "./components/Editor/GuiEditor";
+import { GuiEditorProvider } from "./components/Editor/useGuiEditor";
 
 export const App = () => {
   return (
@@ -11,7 +12,9 @@ export const App = () => {
       </Header>
       <Main pad="small">
         <Box height="700px" width="600px">
-          <GuiEditor />
+          <GuiEditorProvider>
+            <GuiEditor />
+          </GuiEditorProvider>
         </Box>
       </Main>
       <Footer background="brand" pad="medium">
