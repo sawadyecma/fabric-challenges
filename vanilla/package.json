@@ -6,6 +6,9 @@
   },
   "devDependencies": {
     "@types/fabric": "^4.5.8",
+    "@types/jest": "^28.1.5",
+    "jest": "^28.1.3",
+    "ts-jest": "^28.0.5",
     "typescript": "^4.5.4",
     "vite": "^2.9.9"
   },
