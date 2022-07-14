@@ -46,9 +46,7 @@ const group = new fabric.Group([rect, circle], {
   height,
 });
 
-guiEditor.getFabricCanvas().on("object:scaling", (obj) => {
-  const group = obj.target! as fabric.Group;
-  const circle = group.getObjects()[1];
+group.on("scaling", () => {
   console.log("circle", circle.width!, circle.height!);
   console.log("group", group.getScaledWidth(), group.getScaledHeight());
 
@@ -57,7 +55,24 @@ guiEditor.getFabricCanvas().on("object:scaling", (obj) => {
 
   console.log(`scaleX: ${scaleX}, scaleY: ${scaleY}`);
 
-  circle.set({ scaleX, scaleY });
+  const ratio = calcInscribeRatio(
+    {
+      width: group.getScaledWidth(),
+      height: group.getScaledHeight(),
+    },
+    {
+      width: circle.width!,
+      height: circle.height!,
+    }
+  );
+
+  circle.set({
+    scaleX: scaleX * ratio,
+    scaleY: scaleY * ratio,
+  });
+
+  circle.set("left", -circle.getScaledWidth() / 2);
+  circle.set("top", -circle.getScaledHeight() / 2);
 });
 
 guiEditor.add(group);
