@@ -1,8 +1,15 @@
 export class Logger {
   private static logContainer: HTMLElement | null = null;
+  private static isVisible: boolean = true;
+  private static readonly STORAGE_KEY = "logger-visible";
 
   private static initializeLogContainer() {
     if (!this.logContainer) {
+      // Load visibility state from localStorage
+      const storedVisibility = localStorage.getItem(this.STORAGE_KEY);
+      this.isVisible =
+        storedVisibility === null ? true : storedVisibility === "true";
+
       this.logContainer = document.createElement("div");
       this.logContainer.id = "log-container";
       this.logContainer.style.cssText = `
@@ -17,9 +24,47 @@ export class Logger {
         font-family: monospace;
         overflow-y: auto;
         z-index: 9999;
+        transition: transform 0.3s ease;
+        transform: translateY(${this.isVisible ? "0" : "100%"});
       `;
+
+      // Add toggle button
+      const toggleButton = document.createElement("button");
+      toggleButton.textContent = this.isVisible ? "▼ Hide Logs" : "▲ Show Logs";
+      toggleButton.style.cssText = `
+        position: fixed;
+        bottom: 210px;
+        right: 10px;
+        padding: 5px 10px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        z-index: 9999;
+      `;
+      toggleButton.onclick = () => this.toggleVisibility();
+      document.body.appendChild(toggleButton);
+
       document.body.appendChild(this.logContainer);
     }
+  }
+
+  private static toggleVisibility() {
+    this.isVisible = !this.isVisible;
+    if (this.logContainer) {
+      this.logContainer.style.transform = `translateY(${
+        this.isVisible ? "0" : "100%"
+      })`;
+      const toggleButton = document.querySelector("button");
+      if (toggleButton) {
+        toggleButton.textContent = this.isVisible
+          ? "▼ Hide Logs"
+          : "▲ Show Logs";
+      }
+    }
+    // Save state to localStorage
+    localStorage.setItem(this.STORAGE_KEY, this.isVisible.toString());
   }
 
   private static createLogEntry(
