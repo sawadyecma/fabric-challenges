@@ -115,9 +115,4 @@ export function render(container: HTMLElement) {
     Logger.info("mouse:up fired");
     Logger.info(`x: ${opt.pointer.x}, y: ${opt.pointer.y}`);
   });
-
-  fabricCanvas.on("mouse:move", (opt) => {
-    // Logger.info("mouse:move fired");
-    // Logger.info(`x: ${opt.pointer.x}, y: ${opt.pointer.y}`);
-  });
 }
