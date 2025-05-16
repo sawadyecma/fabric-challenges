@@ -109,3 +109,31 @@ export function render(container: HTMLElement) {
 
   Logger.info("Canvas initialized with smooth pressure-sensitive drawing");
 }
+
+export function docs() {
+  return `
+    <h3>筆圧感知ペン</h3>
+    <p>Fabric.jsを使用した筆圧感知機能付きの描画ツールです。</p>
+    
+    <h4>機能</h4>
+    <ul>
+      <li>筆圧に応じた線の太さの変化</li>
+      <li>滑らかな曲線の描画</li>
+      <li>ベジェ曲線による自然な描画</li>
+    </ul>
+
+    <h4>使い方</h4>
+    <ol>
+      <li>キャンバス上で描画を開始</li>
+      <li>筆圧を変化させながら描画</li>
+      <li>線の太さが筆圧に応じて変化</li>
+    </ol>
+
+    <h4>技術的な特徴</h4>
+    <ul>
+      <li>PointerEventによる筆圧検出</li>
+      <li>二次ベジェ曲線による滑らかな描画</li>
+      <li>動的な線の太さ制御</li>
+    </ul>
+  `;
+}

@@ -6,6 +6,12 @@ const titleEl = document.querySelector("main h1")!;
 
 import "./styles/main.css";
 
+// Story interface
+interface Story {
+  render: (container: HTMLElement) => void;
+  docs?: () => string;
+}
+
 // Sort stories by case number
 const sortedEntries = Object.entries(storyModules)
   .map(([path, loader]) => {
@@ -19,7 +25,38 @@ const sortedEntries = Object.entries(storyModules)
 const loadStory = async (path: string, loader: () => Promise<any>) => {
   containerEl.innerHTML = "";
   const mod = await loader();
-  mod.render(containerEl);
+  const story = mod as Story;
+
+  // Create container for story and documentation
+  const storyWrapper = document.createElement("div");
+  storyWrapper.style.cssText = `
+    display: flex;
+    gap: 20px;
+  `;
+
+  // Story container
+  const storyContainer = document.createElement("div");
+  storyContainer.style.flex = "1";
+  story.render(storyContainer);
+  storyWrapper.appendChild(storyContainer);
+
+  // Documentation container
+  if (story.docs) {
+    const docContainer = document.createElement("div");
+    docContainer.style.cssText = `
+      width: 300px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #dee2e6;
+      font-size: 14px;
+      line-height: 1.6;
+    `;
+    docContainer.innerHTML = story.docs();
+    storyWrapper.appendChild(docContainer);
+  }
+
+  containerEl.appendChild(storyWrapper);
   titleEl.textContent = `Story: ${path}`;
 
   // Update URL without reloading the page

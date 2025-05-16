@@ -79,3 +79,33 @@ export function render(container: HTMLElement) {
   fabricCanvas.renderAll();
   Logger.info("Canvas initialized with pencil brush drawing tool");
 }
+
+export function docs() {
+  return `
+    <h3>カラーピッカー付きペン</h3>
+    <p>Fabric.jsのPencilBrushを使用した描画ツールです。</p>
+    
+    <h4>機能</h4>
+    <ul>
+      <li>自由な描画</li>
+      <li>カラーピッカーによる色の選択</li>
+      <li>ブラシサイズの調整（1-20px）</li>
+      <li>キャンバスクリア機能</li>
+    </ul>
+
+    <h4>使い方</h4>
+    <ol>
+      <li>カラーピッカーで色を選択</li>
+      <li>スライダーでブラシの太さを調整</li>
+      <li>キャンバス上で描画</li>
+      <li>必要に応じて「Clear Canvas」でリセット</li>
+    </ol>
+
+    <h4>技術的な特徴</h4>
+    <ul>
+      <li>PencilBrushによる滑らかな描画</li>
+      <li>カラーピッカーフォーカス時の描画制御</li>
+      <li>レスポンシブなUI</li>
+    </ul>
+  `;
+}

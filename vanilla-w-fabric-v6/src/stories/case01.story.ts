@@ -116,3 +116,32 @@ export function render(container: HTMLElement) {
     Logger.info(`x: ${opt.pointer.x}, y: ${opt.pointer.y}`);
   });
 }
+
+export function docs() {
+  return `
+    <h3>方眼紙とズーム機能付きキャンバス</h3>
+    <p>Fabric.jsを使用した基本的なキャンバス実装です。</p>
+    
+    <h4>機能</h4>
+    <ul>
+      <li>方眼紙パターンの背景</li>
+      <li>ピンチズーム機能（タッチデバイス）</li>
+      <li>基本的な図形（四角形）の配置</li>
+      <li>マウスイベントのログ出力</li>
+    </ul>
+
+    <h4>使い方</h4>
+    <ol>
+      <li>キャンバス上でマウスをクリックしてイベントを確認</li>
+      <li>タッチデバイスでピンチ操作してズーム</li>
+      <li>配置された四角形をクリックしてイベントを確認</li>
+    </ol>
+
+    <h4>技術的な特徴</h4>
+    <ul>
+      <li>Patternを使用した背景パターン</li>
+      <li>タッチイベントによるズーム制御</li>
+      <li>イベントハンドリングとログ出力</li>
+    </ul>
+  `;
+}
