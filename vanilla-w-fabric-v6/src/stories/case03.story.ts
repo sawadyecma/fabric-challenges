@@ -1,6 +1,24 @@
 import { Canvas, PencilBrush } from "fabric";
 import { Logger } from "../utils/logger";
 
+// Convert linear slider value (0-100) to exponential value (0.1-500)
+const linearToExponential = (value: number): number => {
+  const min = 0.1;
+  const max = 50;
+  // より緩やかな指数関数を使用
+  const scale = (max - min) / (Math.exp(2) - 1);
+  return min + scale * (Math.exp(value / 50) - 1);
+};
+
+// Convert exponential value (0.1-500) to linear slider value (0-100)
+const exponentialToLinear = (value: number): number => {
+  const min = 0.1;
+  const max = 50;
+  // より緩やかな指数関数を使用
+  const scale = (max - min) / (Math.exp(2) - 1);
+  return 50 * Math.log((value - min) / scale + 1);
+};
+
 export function render(container: HTMLElement) {
   // Create canvas element
   const canvasElement = document.createElement("canvas");
@@ -23,6 +41,7 @@ export function render(container: HTMLElement) {
   const pencilBrush = new PencilBrush(fabricCanvas);
   pencilBrush.color = "#000000";
   pencilBrush.width = 2;
+  pencilBrush.decimate = 200;
   fabricCanvas.freeDrawingBrush = pencilBrush;
 
   // Add color picker
@@ -65,6 +84,43 @@ export function render(container: HTMLElement) {
   };
   container.appendChild(sizeControl);
 
+  // Add decimate control
+  const decimateContainer = document.createElement("div");
+  decimateContainer.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  `;
+
+  const decimateLabel = document.createElement("label");
+  decimateLabel.textContent = "Decimate:";
+  decimateLabel.style.minWidth = "80px";
+
+  const decimateValue = document.createElement("span");
+  decimateValue.textContent = "200";
+  decimateValue.style.minWidth = "60px";
+  decimateValue.style.textAlign = "right";
+
+  const decimateControl = document.createElement("input");
+  decimateControl.type = "range";
+  decimateControl.min = "0";
+  decimateControl.max = "100";
+  decimateControl.value = exponentialToLinear(200).toString();
+  decimateControl.style.flex = "1";
+  decimateControl.oninput = (e) => {
+    const target = e.target as HTMLInputElement;
+    const linearValue = parseInt(target.value);
+    const exponentialValue = linearToExponential(linearValue);
+    pencilBrush.decimate = exponentialValue;
+    decimateValue.textContent = exponentialValue.toFixed(1);
+  };
+
+  decimateContainer.appendChild(decimateLabel);
+  decimateContainer.appendChild(decimateControl);
+  decimateContainer.appendChild(decimateValue);
+  container.appendChild(decimateContainer);
+
   // Add clear button
   const clearButton = document.createElement("button");
   clearButton.textContent = "Clear Canvas";
@@ -90,6 +146,7 @@ export function docs() {
       <li>自由な描画</li>
       <li>カラーピッカーによる色の選択</li>
       <li>ブラシサイズの調整（1-20px）</li>
+      <li>Decimate値の調整（0.1-500）</li>
       <li>キャンバスクリア機能</li>
     </ul>
 
@@ -97,6 +154,7 @@ export function docs() {
     <ol>
       <li>カラーピッカーで色を選択</li>
       <li>スライダーでブラシの太さを調整</li>
+      <li>Decimateスライダーで描画の滑らかさを調整（指数関数的な変化）</li>
       <li>キャンバス上で描画</li>
       <li>必要に応じて「Clear Canvas」でリセット</li>
     </ol>
@@ -105,6 +163,7 @@ export function docs() {
     <ul>
       <li>PencilBrushによる滑らかな描画</li>
       <li>カラーピッカーフォーカス時の描画制御</li>
+      <li>指数関数的なDecimate値の制御（0.1-1の範囲で細かい制御が可能）</li>
       <li>レスポンシブなUI</li>
     </ul>
   `;
