@@ -10,19 +10,13 @@ export class Logger {
       this.isVisible =
         storedVisibility === null ? true : storedVisibility === "true";
 
-      this.logContainer = document.createElement("div");
-      this.logContainer.id = "log-container";
-      this.logContainer.style.cssText = `
+      // Create container for both log and toggle button
+      const container = document.createElement("div");
+      container.style.cssText = `
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        height: 200px;
-        background: rgba(0, 0, 0, 0.8);
-        color: #fff;
-        padding: 10px;
-        font-family: monospace;
-        overflow-y: auto;
         z-index: 9999;
         transition: transform 0.3s ease;
         transform: translateY(${this.isVisible ? "0" : "100%"});
@@ -32,35 +26,48 @@ export class Logger {
       const toggleButton = document.createElement("button");
       toggleButton.textContent = this.isVisible ? "▼ Hide Logs" : "▲ Show Logs";
       toggleButton.style.cssText = `
-        position: fixed;
-        bottom: 210px;
+        position: absolute;
+        top: -30px;
         right: 10px;
         padding: 5px 10px;
         background: rgba(0, 0, 0, 0.8);
         color: #fff;
         border: none;
-        border-radius: 4px;
+        border-radius: 4px 4px 0 0;
         cursor: pointer;
-        z-index: 9999;
       `;
       toggleButton.onclick = () => this.toggleVisibility();
-      document.body.appendChild(toggleButton);
+      container.appendChild(toggleButton);
 
-      document.body.appendChild(this.logContainer);
+      this.logContainer = document.createElement("div");
+      this.logContainer.id = "log-container";
+      this.logContainer.style.cssText = `
+        height: 200px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        padding: 10px;
+        font-family: monospace;
+        overflow-y: auto;
+      `;
+      container.appendChild(this.logContainer);
+      document.body.appendChild(container);
     }
   }
 
   private static toggleVisibility() {
     this.isVisible = !this.isVisible;
     if (this.logContainer) {
-      this.logContainer.style.transform = `translateY(${
-        this.isVisible ? "0" : "100%"
-      })`;
-      const toggleButton = document.querySelector("button");
-      if (toggleButton) {
-        toggleButton.textContent = this.isVisible
-          ? "▼ Hide Logs"
-          : "▲ Show Logs";
+      const container = this.logContainer.parentElement;
+      if (container) {
+        container.style.transform = `translateY(${
+          this.isVisible ? "0" : "100%"
+        })`;
+        const toggleButton = container.querySelector("button");
+        if (toggleButton) {
+          toggleButton.textContent = this.isVisible
+            ? "▼ Hide Logs"
+            : "▲ Show Logs";
+        }
       }
     }
     // Save state to localStorage
