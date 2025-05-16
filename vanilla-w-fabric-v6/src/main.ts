@@ -15,19 +15,52 @@ const sortedEntries = Object.entries(storyModules)
   })
   .sort((a, b) => a.num - b.num);
 
+// Function to load and render a story
+const loadStory = async (path: string, loader: () => Promise<any>) => {
+  containerEl.innerHTML = "";
+  const mod = await loader();
+  mod.render(containerEl);
+  titleEl.textContent = `Story: ${path}`;
+
+  // Update URL without reloading the page
+  const url = new URL(window.location.href);
+  url.searchParams.set("story", path);
+  window.history.pushState({}, "", url);
+};
+
+// Function to get story number from URL
+const getStoryNumberFromUrl = () => {
+  const url = new URL(window.location.href);
+  const storyParam = url.searchParams.get("story");
+  if (storyParam) {
+    const match = storyParam.match(/case(\d+)\.story\.ts$/);
+    return match ? parseInt(match[1], 10) : null;
+  }
+  return null;
+};
+
 // Process entries sequentially to maintain order
 (async () => {
   for (const { path, loader } of sortedEntries) {
-    const mod: any = await loader();
     const li = document.createElement("li");
     const a = document.createElement("a");
     a.textContent = path;
     li.appendChild(a);
-    li.onclick = () => {
-      containerEl.innerHTML = "";
-      mod.render(containerEl);
-      titleEl.textContent = `Story: ${path}`;
-    };
+    li.onclick = () => loadStory(path, loader);
     listEl.appendChild(li);
+  }
+
+  // Load initial story
+  const storyNumber = getStoryNumberFromUrl();
+  if (storyNumber !== null) {
+    // Find and load the specified story
+    const story = sortedEntries.find((entry) => entry.num === storyNumber);
+    if (story) {
+      await loadStory(story.path, story.loader);
+    }
+  } else if (sortedEntries.length > 0) {
+    // Load the first story if no story is specified
+    const firstStory = sortedEntries[0];
+    await loadStory(firstStory.path, firstStory.loader);
   }
 })();
