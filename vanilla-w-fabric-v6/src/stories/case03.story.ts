@@ -74,6 +74,7 @@ export function render(container: HTMLElement) {
   colorPicker.onchange = (e) => {
     const target = e.target as HTMLInputElement;
     pencilBrush.color = target.value;
+    fabricCanvas.isDrawingMode = true;
   };
 
   container.appendChild(colorPicker);
@@ -103,10 +104,19 @@ export function render(container: HTMLElement) {
       color: white;
       cursor: pointer;
     `;
-    button.onclick = () => {
+
+    button.ontouchstart = (e) => {
+      // button.onclick = (e) => {
+      e.preventDefault();
+      Logger.info("Color button clicked");
       pencilBrush.color = color.value;
       colorPicker.value = color.value;
-      fabricCanvas.isDrawingMode = true;
+      setTimeout(() => {
+        fabricCanvas.isDrawingMode = true;
+      }, 100);
+      Logger.info(
+        `Canvas state after color change - isDrawingMode: ${fabricCanvas.isDrawingMode}`
+      );
     };
 
     colorButtonsContainer.appendChild(button);
@@ -175,6 +185,19 @@ export function render(container: HTMLElement) {
     fabricCanvas.renderAll();
   };
   container.appendChild(clearButton);
+
+  // Add additional event listeners for debugging
+  canvasElement.addEventListener(
+    "touchstart",
+    (e) => {
+      Logger.info("Native touchstart event on canvas element");
+    },
+    { passive: false }
+  );
+
+  canvasElement.addEventListener("mousedown", (e) => {
+    Logger.info("Native mousedown event on canvas element");
+  });
 
   fabricCanvas.renderAll();
   Logger.info("Canvas initialized with pencil brush drawing tool");
