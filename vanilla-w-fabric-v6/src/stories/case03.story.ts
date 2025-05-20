@@ -26,6 +26,7 @@ export function render(container: HTMLElement) {
   canvasElement.height = 400;
   canvasElement.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
   canvasElement.style.borderRadius = "4px";
+  canvasElement.style.touchAction = "none";
   container.appendChild(canvasElement);
 
   // Initialize Fabric.js canvas
@@ -41,7 +42,7 @@ export function render(container: HTMLElement) {
   const pencilBrush = new PencilBrush(fabricCanvas);
   pencilBrush.color = "#000000";
   pencilBrush.width = 2;
-  pencilBrush.decimate = 200;
+  pencilBrush.decimate = 0.4;
   fabricCanvas.freeDrawingBrush = pencilBrush;
 
   // Add color picker
@@ -69,6 +70,41 @@ export function render(container: HTMLElement) {
   };
 
   container.appendChild(colorPicker);
+
+  // Add color buttons
+  const colorButtonsContainer = document.createElement("div");
+  colorButtonsContainer.style.cssText = `
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  `;
+
+  const colors = [
+    { name: "Red", value: "#ff0000" },
+    { name: "Green", value: "#00ff00" },
+    { name: "Blue", value: "#0000ff" },
+  ];
+
+  colors.forEach((color) => {
+    const button = document.createElement("button");
+    button.textContent = color.name;
+    button.style.cssText = `
+      padding: 4px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: ${color.value};
+      color: white;
+      cursor: pointer;
+    `;
+    button.onclick = () => {
+      pencilBrush.color = color.value;
+      colorPicker.value = color.value;
+    };
+
+    colorButtonsContainer.appendChild(button);
+  });
+
+  container.appendChild(colorButtonsContainer);
 
   // Add brush size control
   const sizeControl = document.createElement("input");
