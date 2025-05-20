@@ -105,6 +105,11 @@ export function render(container: HTMLElement) {
       cursor: pointer;
     `;
 
+    /**
+     *
+     *
+     * @see https://ionic.io/blog/hybrid-apps-and-the-curse-of-the-300ms-delay
+     */
     button.ontouchstart = (e) => {
       // button.onclick = (e) => {
       e.preventDefault();
