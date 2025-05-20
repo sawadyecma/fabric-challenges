@@ -45,6 +45,13 @@ export function render(container: HTMLElement) {
   pencilBrush.decimate = 0.4;
   fabricCanvas.freeDrawingBrush = pencilBrush;
 
+  // Add touchstart event logging
+  fabricCanvas.on("mouse:down", (e) => {
+    Logger.info(
+      `Touch/Mouse down event - isDrawingMode: ${fabricCanvas.isDrawingMode}`
+    );
+  });
+
   // Add color picker
   const colorPicker = document.createElement("input");
   colorPicker.type = "color";
@@ -99,6 +106,7 @@ export function render(container: HTMLElement) {
     button.onclick = () => {
       pencilBrush.color = color.value;
       colorPicker.value = color.value;
+      fabricCanvas.isDrawingMode = true;
     };
 
     colorButtonsContainer.appendChild(button);
