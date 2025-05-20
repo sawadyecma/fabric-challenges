@@ -93,6 +93,37 @@ export function render(container: HTMLElement) {
     { name: "Blue", value: "#0000ff" },
   ];
 
+  // Add loading indicator
+  const loadingIndicator = document.createElement("div");
+  loadingIndicator.style.cssText = `
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+    display: none;
+    z-index: 1000;
+  `;
+  loadingIndicator.innerHTML = `
+    <div style="
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    "></div>
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  `;
+  container.appendChild(loadingIndicator);
+
   colors.forEach((color) => {
     const button = document.createElement("button");
     button.textContent = color.name;
@@ -105,23 +136,25 @@ export function render(container: HTMLElement) {
       cursor: pointer;
     `;
 
-    /**
-     *
-     *
-     * @see https://ionic.io/blog/hybrid-apps-and-the-curse-of-the-300ms-delay
-     */
-    button.ontouchstart = (e) => {
-      // button.onclick = (e) => {
+    button.onpointerdown = (e) => {
       e.preventDefault();
       Logger.info("Color button clicked");
-      pencilBrush.color = color.value;
-      colorPicker.value = color.value;
+
+      // Show loading indicator
+      loadingIndicator.style.display = "block";
+
+      // Simulate 300ms delay
       setTimeout(() => {
+        pencilBrush.color = color.value;
+        colorPicker.value = color.value;
         fabricCanvas.isDrawingMode = true;
-      }, 100);
-      Logger.info(
-        `Canvas state after color change - isDrawingMode: ${fabricCanvas.isDrawingMode}`
-      );
+        Logger.info(
+          `Canvas state after color change - isDrawingMode: ${fabricCanvas.isDrawingMode}`
+        );
+
+        // Hide loading indicator
+        loadingIndicator.style.display = "none";
+      }, 300);
     };
 
     colorButtonsContainer.appendChild(button);
