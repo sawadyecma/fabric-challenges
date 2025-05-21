@@ -43,11 +43,28 @@ export function render(container: HTMLElement) {
 
   let initialDistance = 0;
   let initialZoom = 1;
+  let lastTouchX = 0;
+  let lastTouchY = 0;
+  let isPanning = false;
+  const ZOOM_THRESHOLD = 0.15; // ズーム検出の閾値（15%の変化）
+  const GESTURE_DETECTION_TIME = 300; // ジェスチャー判定時間（ミリ秒）
+  let gestureStartTime = 0;
+  let isZooming = false;
+  let initialTouchPoints: { x: number; y: number }[] = [];
 
   fabricCanvas.upperCanvasEl.addEventListener("touchstart", (e: TouchEvent) => {
     if (e.touches.length === 2) {
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
+
+      // 初期状態の記録
+      gestureStartTime = Date.now();
+      isZooming = false;
+      isPanning = true;
+      initialTouchPoints = [
+        { x: touch1.clientX, y: touch1.clientY },
+        { x: touch2.clientX, y: touch2.clientY },
+      ];
 
       // 2点間の距離を計算
       initialDistance = Math.hypot(
@@ -57,6 +74,10 @@ export function render(container: HTMLElement) {
 
       // 現在のズーム値を保存
       initialZoom = fabricCanvas.getZoom();
+
+      // パン開始位置を記録
+      lastTouchX = (touch1.clientX + touch2.clientX) / 2;
+      lastTouchY = (touch1.clientY + touch2.clientY) / 2;
     }
   });
 
@@ -64,6 +85,7 @@ export function render(container: HTMLElement) {
     if (e.touches.length === 2) {
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
+      const currentTime = Date.now();
 
       // 現在の2点間の距離を計算
       const currentDistance = Math.hypot(
@@ -71,20 +93,78 @@ export function render(container: HTMLElement) {
         touch2.clientY - touch1.clientY
       );
 
-      // ズームスケールを計算
-      const scale = (currentDistance / initialDistance) * initialZoom;
+      // 距離の変化率を計算
+      const distanceRatio = currentDistance / initialDistance;
+      const zoomChange = Math.abs(distanceRatio - 1);
 
-      // ズームの制限を設定（0.1から5倍の範囲）
-      const limitedScale = Math.min(Math.max(scale, 0.1), 5);
+      // ジェスチャー判定時間内の場合
+      if (currentTime - gestureStartTime < GESTURE_DETECTION_TIME) {
+        // 指の移動量を計算
+        const touch1Movement = Math.hypot(
+          touch1.clientX - initialTouchPoints[0].x,
+          touch1.clientY - initialTouchPoints[0].y
+        );
+        const touch2Movement = Math.hypot(
+          touch2.clientX - initialTouchPoints[1].x,
+          touch2.clientY - initialTouchPoints[1].y
+        );
 
-      // キャンバスの中心を基準にズーム
-      fabricCanvas.zoomToPoint(
-        new Point(fabricCanvas.width / 2, fabricCanvas.height / 2),
-        limitedScale
-      );
+        // 指の移動方向の変化を計算
+        const initialVector = {
+          x: initialTouchPoints[1].x - initialTouchPoints[0].x,
+          y: initialTouchPoints[1].y - initialTouchPoints[0].y,
+        };
+        const currentVector = {
+          x: touch2.clientX - touch1.clientX,
+          y: touch2.clientY - touch1.clientY,
+        };
+
+        // ベクトルの角度変化を計算
+        const angleChange = Math.abs(
+          Math.atan2(currentVector.y, currentVector.x) -
+            Math.atan2(initialVector.y, initialVector.x)
+        );
+
+        // ズーム判定
+        if (zoomChange > ZOOM_THRESHOLD && angleChange < Math.PI / 4) {
+          isZooming = true;
+        }
+      }
+
+      // パン処理
+      const currentX = (touch1.clientX + touch2.clientX) / 2;
+      const currentY = (touch1.clientY + touch2.clientY) / 2;
+
+      const deltaX = currentX - lastTouchX;
+      const deltaY = currentY - lastTouchY;
+
+      // ビューポートを移動
+      const vpt = fabricCanvas.viewportTransform;
+      if (vpt) {
+        vpt[4] += deltaX;
+        vpt[5] += deltaY;
+      }
+
+      lastTouchX = currentX;
+      lastTouchY = currentY;
+
+      // ズーム処理（ズーム判定が確定している場合のみ）
+      if (isZooming) {
+        const scale = distanceRatio * initialZoom;
+        const limitedScale = Math.min(Math.max(scale, 0.1), 5);
+        fabricCanvas.zoomToPoint(
+          new Point(fabricCanvas.width / 2, fabricCanvas.height / 2),
+          limitedScale
+        );
+      }
 
       fabricCanvas.requestRenderAll();
     }
+  });
+
+  fabricCanvas.upperCanvasEl.addEventListener("touchend", () => {
+    isPanning = false;
+    isZooming = false;
   });
 
   // 四角形を作成
