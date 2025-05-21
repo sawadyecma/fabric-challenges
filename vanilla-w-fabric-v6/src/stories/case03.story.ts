@@ -10,6 +10,71 @@ const linearToExponential = (value: number): number => {
   return min + scale * (Math.exp(value / 50) - 1);
 };
 
+// PencilBrushの状態を管理するstore
+class PencilBrushStore {
+  private _color: string = "#000000";
+  private _width: number = 2;
+  private _decimate: number = 0.4;
+  private _brush: PencilBrush | null = null;
+
+  get color() {
+    return this._color;
+  }
+
+  get width() {
+    return this._width;
+  }
+
+  get decimate() {
+    return this._decimate;
+  }
+
+  get brush() {
+    return this._brush;
+  }
+
+  setBrush(brush: PencilBrush) {
+    this._brush = brush;
+    this.applySettings();
+  }
+
+  setColor(color: string) {
+    this._color = color;
+    if (this._brush) {
+      this._brush.color = color;
+    }
+  }
+
+  setWidth(width: number) {
+    this._width = width;
+    if (this._brush) {
+      this._brush.width = width;
+    }
+  }
+
+  setDecimate(decimate: number) {
+    this._decimate = decimate;
+    if (this._brush) {
+      this._brush.decimate = decimate;
+    }
+  }
+
+  private applySettings() {
+    if (this._brush) {
+      this._brush.color = this._color;
+      this._brush.width = this._width;
+      this._brush.decimate = this._decimate;
+    }
+  }
+
+  createNewBrush(canvas: Canvas): PencilBrush {
+    const brush = new PencilBrush(canvas);
+    this._brush = brush;
+    this.applySettings();
+    return brush;
+  }
+}
+
 export function render(container: HTMLElement) {
   // Create canvas element
   const canvasElement = document.createElement("canvas");
@@ -28,6 +93,11 @@ export function render(container: HTMLElement) {
     isDrawingMode: true,
     selection: false,
   });
+
+  // Create PencilBrush store
+  const brushStore = new PencilBrushStore();
+  const pencilBrush = brushStore.createNewBrush(fabricCanvas);
+  fabricCanvas.freeDrawingBrush = pencilBrush;
 
   // Multi-touch variables
   let initialDistance = 0;
@@ -173,14 +243,9 @@ export function render(container: HTMLElement) {
     if (isMultiTouchActive) {
       if (isSingleTouchEnd(e)) {
         isMultiTouchActive = false;
-        // マルチタッチ終了時にcontextTopをクリア
-        // fabricCanvas.clearContext(fabricCanvas.contextTop);
         // PencilBrushを新しいインスタンスに置き換え
-        const newPencilBrush = new PencilBrush(fabricCanvas);
-        newPencilBrush.color = pencilBrush.color;
-        newPencilBrush.width = pencilBrush.width;
-        newPencilBrush.decimate = pencilBrush.decimate;
-        fabricCanvas.freeDrawingBrush = newPencilBrush;
+        const newBrush = brushStore.createNewBrush(fabricCanvas);
+        fabricCanvas.freeDrawingBrush = newBrush;
         fabricCanvas.requestRenderAll();
         // touchendでの点の描画を防ぐためにsetTimeoutを使用
         setTimeout(() => {
@@ -208,17 +273,10 @@ export function render(container: HTMLElement) {
     Logger.info("touchend, length: " + _e.touches.length);
   });
 
-  // Create and configure pencil brush
-  const pencilBrush = new PencilBrush(fabricCanvas);
-  pencilBrush.color = "#000000";
-  pencilBrush.width = 2;
-  pencilBrush.decimate = 0.4;
-  fabricCanvas.freeDrawingBrush = pencilBrush;
-
   // Add color picker
   const colorPicker = document.createElement("input");
   colorPicker.type = "color";
-  colorPicker.value = "#000000";
+  colorPicker.value = brushStore.color;
   colorPicker.style.marginBottom = "10px";
 
   colorPicker.onfocus = () => {
@@ -231,7 +289,7 @@ export function render(container: HTMLElement) {
 
   colorPicker.onchange = (e) => {
     const target = e.target as HTMLInputElement;
-    pencilBrush.color = target.value;
+    brushStore.setColor(target.value);
     fabricCanvas.isDrawingMode = true;
   };
 
@@ -303,7 +361,7 @@ export function render(container: HTMLElement) {
 
       // Simulate 300ms delay
       setTimeout(() => {
-        pencilBrush.color = color.value;
+        brushStore.setColor(color.value);
         colorPicker.value = color.value;
         fabricCanvas.isDrawingMode = true;
         Logger.info(
@@ -325,12 +383,12 @@ export function render(container: HTMLElement) {
   sizeControl.type = "range";
   sizeControl.min = "1";
   sizeControl.max = "20";
-  sizeControl.value = "2";
+  sizeControl.value = brushStore.width.toString();
   sizeControl.style.marginBottom = "10px";
   sizeControl.style.width = "100%";
   sizeControl.onchange = (e) => {
     const target = e.target as HTMLInputElement;
-    pencilBrush.width = parseInt(target.value);
+    brushStore.setWidth(parseInt(target.value));
   };
   container.appendChild(sizeControl);
 
@@ -348,7 +406,7 @@ export function render(container: HTMLElement) {
   decimateLabel.style.minWidth = "80px";
 
   const decimateValue = document.createElement("span");
-  decimateValue.textContent = "0.4";
+  decimateValue.textContent = brushStore.decimate.toString();
   decimateValue.style.minWidth = "60px";
   decimateValue.style.textAlign = "right";
 
@@ -356,13 +414,13 @@ export function render(container: HTMLElement) {
   decimateControl.type = "range";
   decimateControl.min = "0";
   decimateControl.max = "100";
-  decimateControl.value = "0.4";
+  decimateControl.value = brushStore.decimate.toString();
   decimateControl.style.flex = "1";
   decimateControl.oninput = (e) => {
     const target = e.target as HTMLInputElement;
     const linearValue = parseInt(target.value);
     const exponentialValue = linearToExponential(linearValue);
-    pencilBrush.decimate = exponentialValue;
+    brushStore.setDecimate(exponentialValue);
     decimateValue.textContent = exponentialValue.toFixed(1);
   };
 
