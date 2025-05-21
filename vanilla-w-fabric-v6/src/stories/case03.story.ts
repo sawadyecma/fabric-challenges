@@ -46,6 +46,8 @@ export function render(container: HTMLElement) {
     if (isMultiTouch(e)) {
       fabricCanvas.isDrawingMode = false;
       isMultiTouchActive = true;
+      // 描画中の線を削除
+      fabricCanvas.clearContext(fabricCanvas.contextTop);
 
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
@@ -177,6 +179,13 @@ export function render(container: HTMLElement) {
         }, 100);
       }
     }
+  });
+
+  fabricCanvas.on("before:path:created", (e) => {
+    Logger.info("before:path:created");
+  });
+  fabricCanvas.on("path:created", (e) => {
+    Logger.info("path:created");
   });
 
   fabricCanvas.upperCanvasEl.addEventListener("touchstart", (_e) => {
