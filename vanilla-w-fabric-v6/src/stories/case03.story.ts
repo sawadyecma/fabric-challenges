@@ -10,15 +10,6 @@ const linearToExponential = (value: number): number => {
   return min + scale * (Math.exp(value / 50) - 1);
 };
 
-// Convert exponential value (0.1-500) to linear slider value (0-100)
-const exponentialToLinear = (value: number): number => {
-  const min = 0.1;
-  const max = 50;
-  // より緩やかな指数関数を使用
-  const scale = (max - min) / (Math.exp(2) - 1);
-  return 50 * Math.log((value - min) / scale + 1);
-};
-
 export function render(container: HTMLElement) {
   // Create canvas element
   const canvasElement = document.createElement("canvas");
@@ -43,23 +34,25 @@ export function render(container: HTMLElement) {
   let initialZoom = 1;
   let lastTouchX = 0;
   let lastTouchY = 0;
-  let isPanning = false;
   const ZOOM_THRESHOLD = 0.15; // ズーム検出の閾値（15%の変化）
   const GESTURE_DETECTION_TIME = 300; // ジェスチャー判定時間（ミリ秒）
   let gestureStartTime = 0;
   let isZooming = false;
   let initialTouchPoints: { x: number; y: number }[] = [];
+  let isMultiTouchActive = false;
 
   // Add multi-touch event handlers
   fabricCanvas.upperCanvasEl.addEventListener("touchstart", (e: TouchEvent) => {
-    if (e.touches.length === 2) {
+    if (isMultiTouch(e)) {
+      fabricCanvas.isDrawingMode = false;
+      isMultiTouchActive = true;
+
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
 
       // 初期状態の記録
       gestureStartTime = Date.now();
       isZooming = false;
-      isPanning = true;
       initialTouchPoints = [
         { x: touch1.clientX, y: touch1.clientY },
         { x: touch2.clientX, y: touch2.clientY },
@@ -77,14 +70,14 @@ export function render(container: HTMLElement) {
       // パン開始位置を記録
       lastTouchX = (touch1.clientX + touch2.clientX) / 2;
       lastTouchY = (touch1.clientY + touch2.clientY) / 2;
-
-      // 描画モードを一時的に無効化
-      fabricCanvas.isDrawingMode = false;
+    } else {
+      fabricCanvas.isDrawingMode = true;
     }
   });
 
   fabricCanvas.upperCanvasEl.addEventListener("touchmove", (e: TouchEvent) => {
-    if (e.touches.length === 2) {
+    if (isMultiTouch(e) || isMultiTouchActive) {
+      fabricCanvas.isDrawingMode = false;
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
       const currentTime = Date.now();
@@ -164,11 +157,37 @@ export function render(container: HTMLElement) {
     }
   });
 
-  fabricCanvas.upperCanvasEl.addEventListener("touchend", () => {
-    isPanning = false;
+  fabricCanvas.upperCanvasEl.addEventListener("touchend", (e) => {
     isZooming = false;
-    // 描画モードを再開
-    fabricCanvas.isDrawingMode = true;
+
+    const isMultiTouchEnd = (e: TouchEvent) => {
+      return e.touches.length === 1;
+    };
+
+    const isSingleTouchEnd = (e: TouchEvent) => {
+      return e.touches.length === 0;
+    };
+
+    if (isMultiTouchActive) {
+      if (isSingleTouchEnd(e)) {
+        isMultiTouchActive = false;
+        // touchendでの点の描画を防ぐためにsetTimeoutを使用
+        setTimeout(() => {
+          fabricCanvas.isDrawingMode = true;
+        }, 100);
+      }
+    }
+  });
+
+  fabricCanvas.upperCanvasEl.addEventListener("touchstart", (_e) => {
+    Logger.info("touchstart, length: " + _e.touches.length);
+  });
+
+  fabricCanvas.upperCanvasEl.addEventListener("touchmove", (_e) => {
+    Logger.info("touchmove, length: " + _e.touches.length);
+  });
+  fabricCanvas.upperCanvasEl.addEventListener("touchend", (_e) => {
+    Logger.info("touchend, length: " + _e.touches.length);
   });
 
   // Create and configure pencil brush
@@ -178,29 +197,17 @@ export function render(container: HTMLElement) {
   pencilBrush.decimate = 0.4;
   fabricCanvas.freeDrawingBrush = pencilBrush;
 
-  // Add touchstart event logging
-  fabricCanvas.on("mouse:down", (e) => {
-    Logger.info(
-      `Touch/Mouse down event - isDrawingMode: ${fabricCanvas.isDrawingMode}`
-    );
-  });
-
   // Add color picker
   const colorPicker = document.createElement("input");
   colorPicker.type = "color";
   colorPicker.value = "#000000";
   colorPicker.style.marginBottom = "10px";
 
-  // Track color picker focus state
-  let isColorPickerFocused = false;
-
   colorPicker.onfocus = () => {
-    isColorPickerFocused = true;
     fabricCanvas.isDrawingMode = false;
   };
 
   colorPicker.onblur = () => {
-    isColorPickerFocused = false;
     fabricCanvas.isDrawingMode = true;
   };
 
@@ -323,7 +330,7 @@ export function render(container: HTMLElement) {
   decimateLabel.style.minWidth = "80px";
 
   const decimateValue = document.createElement("span");
-  decimateValue.textContent = "200";
+  decimateValue.textContent = "0.4";
   decimateValue.style.minWidth = "60px";
   decimateValue.style.textAlign = "right";
 
@@ -331,7 +338,7 @@ export function render(container: HTMLElement) {
   decimateControl.type = "range";
   decimateControl.min = "0";
   decimateControl.max = "100";
-  decimateControl.value = exponentialToLinear(200).toString();
+  decimateControl.value = "0.4";
   decimateControl.style.flex = "1";
   decimateControl.oninput = (e) => {
     const target = e.target as HTMLInputElement;
@@ -406,3 +413,7 @@ export function docs() {
     </ul>
   `;
 }
+
+const isMultiTouch = (e: TouchEvent) => {
+  return e.touches.length > 1;
+};
