@@ -173,6 +173,15 @@ export function render(container: HTMLElement) {
     if (isMultiTouchActive) {
       if (isSingleTouchEnd(e)) {
         isMultiTouchActive = false;
+        // マルチタッチ終了時にcontextTopをクリア
+        // fabricCanvas.clearContext(fabricCanvas.contextTop);
+        // PencilBrushを新しいインスタンスに置き換え
+        const newPencilBrush = new PencilBrush(fabricCanvas);
+        newPencilBrush.color = pencilBrush.color;
+        newPencilBrush.width = pencilBrush.width;
+        newPencilBrush.decimate = pencilBrush.decimate;
+        fabricCanvas.freeDrawingBrush = newPencilBrush;
+        fabricCanvas.requestRenderAll();
         // touchendでの点の描画を防ぐためにsetTimeoutを使用
         setTimeout(() => {
           fabricCanvas.isDrawingMode = true;
