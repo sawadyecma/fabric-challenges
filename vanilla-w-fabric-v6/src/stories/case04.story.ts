@@ -85,6 +85,54 @@ export function render(container: HTMLElement) {
   canvasElement.style.touchAction = "none";
   container.appendChild(canvasElement);
 
+  // Create pointer element
+  const pointer = document.createElement("div");
+  pointer.style.cssText = `
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(255, 0, 0, 0.5);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    display:block;
+  `;
+  container.appendChild(pointer);
+
+  const pointer2 = document.createElement("div");
+  pointer2.style.cssText = `
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0, 255, 0, 0.5);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    display:block;
+  `;
+  container.appendChild(pointer2);
+
+  const pointer3 = document.createElement("div");
+  pointer3.style.cssText = `
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0, 0, 255, 0.5);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    display:block;
+  `;
+  container.appendChild(pointer3);
   // Initialize Fabric.js canvas
   const fabricCanvas = new Canvas(canvasElement, {
     width: 400,
@@ -108,7 +156,6 @@ export function render(container: HTMLElement) {
   const GESTURE_DETECTION_TIME = 300; // ジェスチャー判定時間（ミリ秒）
   let gestureStartTime = 0;
   let isZooming = false;
-  let isPanning = false;
   let initialTouchPoints: { x: number; y: number }[] = [];
   let isMultiTouchActive = false;
 
@@ -117,16 +164,15 @@ export function render(container: HTMLElement) {
     if (isMultiTouch(e)) {
       fabricCanvas.isDrawingMode = false;
       isMultiTouchActive = true;
-      // 描画中の線を削除
-      fabricCanvas.clearContext(fabricCanvas.contextTop);
 
+      // 描画途中の線を削除するためにcontextTopをクリア
+      fabricCanvas.clearContext(fabricCanvas.contextTop);
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
 
       // 初期状態の記録
       gestureStartTime = Date.now();
       isZooming = false;
-      isPanning = false;
       initialTouchPoints = [
         { x: touch1.clientX, y: touch1.clientY },
         { x: touch2.clientX, y: touch2.clientY },
@@ -181,53 +227,54 @@ export function render(container: HTMLElement) {
         // ズーム判定
         if (zoomChange > ZOOM_THRESHOLD) {
           isZooming = true;
-          isPanning = false;
-          // } else if (touch1Movement > 10 || touch2Movement > 10) {
-          //   // パン判定（指の移動量が一定以上）
-          //   isPanning = true;
-          //   isZooming = false;
-        } else {
-          isPanning = true;
-          isZooming = false;
         }
       }
 
-      // パン処理（パン判定が確定している場合のみ）
-      if (isPanning) {
-        const currentX = (touch1.clientX + touch2.clientX) / 2;
-        const currentY = (touch1.clientY + touch2.clientY) / 2;
+      // パン処理（常に実行）
+      const currentX = (touch1.clientX + touch2.clientX) / 2;
+      const currentY = (touch1.clientY + touch2.clientY) / 2;
 
-        const deltaX = currentX - lastTouchX;
-        const deltaY = currentY - lastTouchY;
+      // Update pointer position
+      pointer.style.left = `${touch1.clientX}px`;
+      pointer.style.top = `${touch1.clientY}px`;
+      pointer.style.display = "block";
 
-        // ビューポートを移動
-        const vpt = fabricCanvas.viewportTransform;
-        if (vpt) {
-          vpt[4] += deltaX;
-          vpt[5] += deltaY;
-        }
+      pointer2.style.left = `${touch2.clientX}px`;
+      pointer2.style.top = `${touch2.clientY}px`;
+      pointer2.style.display = "block";
 
-        lastTouchX = currentX;
-        lastTouchY = currentY;
-      }
+      pointer3.style.left = `${currentX}px`;
+      pointer3.style.top = `${currentY}px`;
+      pointer3.style.display = "block";
+
+      const deltaX = currentX - lastTouchX;
+      const deltaY = currentY - lastTouchY;
 
       // ズーム処理（ズーム判定が確定している場合のみ）
       if (isZooming) {
         const scale = distanceRatio * initialZoom;
-        const limitedScale = Math.min(Math.max(scale, 0.1), 5);
+        const limitedScale = Math.min(Math.max(scale, 1), 10);
+        Logger.info("limitedScale: " + limitedScale);
 
-        // Calculate the center point of the gesture
-        const gestureCenterX = (touch1.clientX + touch2.clientX) / 2;
-        const gestureCenterY = (touch1.clientY + touch2.clientY) / 2;
+        // Convert screen coordinates to canvas coordinates using absolutePointer
+        const point = new Point(
+          (touch1.clientX + touch2.clientX) / 2,
+          (touch1.clientY + touch2.clientY) / 2
+        );
 
-        // Convert screen coordinates to canvas coordinates
-        const pointer = fabricCanvas.getPointer({
-          clientX: gestureCenterX,
-          clientY: gestureCenterY,
-        } as unknown as PointerEvent);
-
-        fabricCanvas.zoomToPoint(new Point(pointer.x, pointer.y), limitedScale);
+        Logger.info("point: " + point.toString());
+        fabricCanvas.zoomToPoint(point, limitedScale);
       }
+
+      // ビューポートを移動
+      const vpt = fabricCanvas.viewportTransform;
+      if (vpt) {
+        vpt[4] += deltaX;
+        vpt[5] += deltaY;
+      }
+
+      lastTouchX = currentX;
+      lastTouchY = currentY;
 
       fabricCanvas.requestRenderAll();
     }
@@ -235,7 +282,9 @@ export function render(container: HTMLElement) {
 
   fabricCanvas.upperCanvasEl.addEventListener("touchend", (e) => {
     isZooming = false;
-    isPanning = false;
+    pointer.style.display = "none";
+    pointer2.style.display = "none";
+    pointer3.style.display = "none";
 
     const isMultiTouchEnd = (e: TouchEvent) => {
       return e.touches.length === 1;
