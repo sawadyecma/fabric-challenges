@@ -1,5 +1,6 @@
 import { Canvas, PencilBrush, Point } from "fabric";
 import { Logger } from "../utils/logger";
+import { EraserBrush } from "@erase2d/fabric";
 
 // Convert linear slider value (0-100) to exponential value (0.1-500)
 const linearToExponential = (value: number): number => {
@@ -140,12 +141,19 @@ export function render(container: HTMLElement) {
     backgroundColor: "#ffffff",
     isDrawingMode: true,
     selection: false,
+    enableRetinaScaling: false,
   });
 
   // Create PencilBrush store
   const brushStore = new PencilBrushStore();
   const pencilBrush = brushStore.createNewBrush(fabricCanvas);
   fabricCanvas.freeDrawingBrush = pencilBrush;
+
+  fabricCanvas.on("path:created", ({ path }) => {
+    if (fabricCanvas.freeDrawingBrush instanceof PencilBrush) {
+      path.erasable = true;
+    }
+  });
 
   // Multi-touch variables
   let initialDistance = 0;
@@ -327,6 +335,61 @@ export function render(container: HTMLElement) {
     Logger.info("touchend, length: " + _e.touches.length);
   });
 
+  // Add tool buttons container
+  const toolButtonsContainer = document.createElement("div");
+  toolButtonsContainer.style.cssText = `
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  `;
+
+  const penButton = document.createElement("button");
+  penButton.textContent = "ペン";
+  penButton.style.cssText = `
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #e0e0e0;
+    cursor: pointer;
+  `;
+  penButton.onclick = () => {
+    fabricCanvas.isDrawingMode = true;
+    fabricCanvas.freeDrawingBrush = brushStore.createNewBrush(fabricCanvas);
+    penButton.style.backgroundColor = "#e0e0e0";
+    eraserButton.style.backgroundColor = "#ffffff";
+  };
+
+  const eraserButton = document.createElement("button");
+  eraserButton.textContent = "消しゴム";
+  eraserButton.style.cssText = `
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #ffffff;
+    cursor: pointer;
+  `;
+  eraserButton.onclick = () => {
+    fabricCanvas.isDrawingMode = true;
+    const eraser = new EraserBrush(fabricCanvas);
+    eraser.width = 20;
+
+    eraser.on("start", (e) => {
+      Logger.info("eraser start");
+    });
+
+    eraser.on("end", (e) => {
+      Logger.info("eraser end");
+    });
+
+    fabricCanvas.freeDrawingBrush = eraser;
+    eraserButton.style.backgroundColor = "#e0e0e0";
+    penButton.style.backgroundColor = "#ffffff";
+  };
+
+  toolButtonsContainer.appendChild(penButton);
+  toolButtonsContainer.appendChild(eraserButton);
+  container.appendChild(toolButtonsContainer);
+
   // Add color picker
   const colorPicker = document.createElement("input");
   colorPicker.type = "color";
@@ -348,89 +411,6 @@ export function render(container: HTMLElement) {
   };
 
   container.appendChild(colorPicker);
-
-  // Add color buttons
-  const colorButtonsContainer = document.createElement("div");
-  colorButtonsContainer.style.cssText = `
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-  `;
-
-  const colors = [
-    { name: "Red", value: "#ff0000" },
-    { name: "Green", value: "#00ff00" },
-    { name: "Blue", value: "#0000ff" },
-  ];
-
-  // Add loading indicator
-  const loadingIndicator = document.createElement("div");
-  loadingIndicator.style.cssText = `
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 20px;
-    border-radius: 8px;
-    display: none;
-    z-index: 1000;
-  `;
-  loadingIndicator.innerHTML = `
-    <div style="
-      width: 40px;
-      height: 40px;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    "></div>
-    <style>
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    </style>
-  `;
-  container.appendChild(loadingIndicator);
-
-  colors.forEach((color) => {
-    const button = document.createElement("button");
-    button.textContent = color.name;
-    button.style.cssText = `
-      padding: 4px 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background-color: ${color.value};
-      color: white;
-      cursor: pointer;
-    `;
-
-    button.onpointerdown = (e) => {
-      e.preventDefault();
-      Logger.info("Color button clicked");
-
-      // Show loading indicator
-      loadingIndicator.style.display = "block";
-
-      // Simulate 300ms delay
-      setTimeout(() => {
-        brushStore.setColor(color.value);
-        colorPicker.value = color.value;
-        fabricCanvas.isDrawingMode = true;
-        Logger.info(
-          `Canvas state after color change - isDrawingMode: ${fabricCanvas.isDrawingMode}`
-        );
-
-        // Hide loading indicator
-        loadingIndicator.style.display = "none";
-      }, 300);
-    };
-
-    colorButtonsContainer.appendChild(button);
-  });
-
-  container.appendChild(colorButtonsContainer);
 
   // Add brush size control
   const sizeControl = document.createElement("input");

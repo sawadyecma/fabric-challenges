@@ -13,6 +13,7 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
-    "fabric": "^6.6.5"
+    "@erase2d/fabric": "^1.1.7",
+    "fabric": "^6.3.2"
   }
 }
