@@ -1,4 +1,6 @@
+/// <reference types="vite/client" />
 import { defineConfig } from "vite";
+import { storyInputs } from "./src/story-inputs";
 
 export default defineConfig({
   server: {
@@ -11,6 +13,14 @@ export default defineConfig({
     ],
     headers: {
       "Access-Control-Allow-Origin": "*",
+    },
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: "index.html",
+        ...storyInputs,
+      },
     },
   },
 });
