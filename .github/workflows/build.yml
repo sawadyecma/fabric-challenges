@@ -24,8 +24,8 @@ jobs:
     steps:
       - uses: actions/setup-node@v3.9.1
       - run: npm ci
-        working-directory: './vanilla-w-fabric-v6'
+        working-directory: 'vanilla-w-fabric-v6'
       - run: npm run build
-        working-directory: './vanilla-w-fabric-v6'
+        working-directory: 'vanilla-w-fabric-v6'
       
       
