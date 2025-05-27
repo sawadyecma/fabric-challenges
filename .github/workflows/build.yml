@@ -27,5 +27,18 @@ jobs:
         working-directory: 'vanilla-w-fabric-v6'
       - run: npm run build
         working-directory: 'vanilla-w-fabric-v6'
-      
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
+        with:
+          path: dist
+          working-directory: 'vanilla-w-fabric-v6'
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
       
