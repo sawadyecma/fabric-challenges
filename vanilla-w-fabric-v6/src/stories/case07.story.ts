@@ -1,4 +1,4 @@
-import { Canvas, PencilBrush, Point } from "fabric";
+import { Canvas, PencilBrush, Point, IText, Textbox } from "fabric";
 import { Logger } from "../utils/logger";
 
 // PencilBrushの状態を管理するstore
@@ -52,6 +52,8 @@ class PencilBrushStore {
     return brush;
   }
 }
+
+let currentTool: "pencil" | "text" | undefined = undefined;
 
 export function render(container: HTMLElement) {
   // Create canvas element
@@ -262,9 +264,29 @@ export function render(container: HTMLElement) {
     fabricCanvas.isDrawingMode = true;
     fabricCanvas.freeDrawingBrush = brushStore.createNewBrush(fabricCanvas);
     penButton.style.backgroundColor = "#e0e0e0";
+    textButton.style.backgroundColor = "#ffffff";
+    currentTool = "pencil";
+  };
+
+  const textButton = document.createElement("button");
+  textButton.textContent = "テキスト";
+  textButton.style.cssText = `
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #ffffff;
+    cursor: pointer;
+  `;
+  textButton.onclick = () => {
+    fabricCanvas.isDrawingMode = false;
+    penButton.style.backgroundColor = "#ffffff";
+    textButton.style.backgroundColor = "#e0e0e0";
+    Logger.info("textButton clicked");
+    currentTool = "text";
   };
 
   toolButtonsContainer.appendChild(penButton);
+  toolButtonsContainer.appendChild(textButton);
   container.appendChild(toolButtonsContainer);
 
   // Add clear button
@@ -289,6 +311,29 @@ export function render(container: HTMLElement) {
 
   canvasElement.addEventListener("mousedown", (e) => {
     Logger.info("Native mousedown event on canvas element");
+  });
+
+  // Add text input functionality
+  fabricCanvas.on("mouse:down", (options) => {
+    if (!fabricCanvas.isDrawingMode && currentTool === "text") {
+      const pointer = fabricCanvas.getViewportPoint(options.e);
+      // Textbox or IText ?
+      const text = new IText("テキストを入力", {
+        left: pointer.x,
+        top: pointer.y,
+        fontFamily: "Arial",
+        fontSize: 20,
+        fill: "#000000",
+        editable: true,
+      });
+
+      fabricCanvas.add(text);
+      text.enterEditing();
+      text.selectAll();
+      fabricCanvas.setActiveObject(text);
+      fabricCanvas.requestRenderAll();
+      currentTool = undefined;
+    }
   });
 
   fabricCanvas.renderAll();
