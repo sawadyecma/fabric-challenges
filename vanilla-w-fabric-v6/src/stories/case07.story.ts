@@ -123,7 +123,7 @@ export function render(container: HTMLElement) {
       lastTouchX = (touch1.clientX + touch2.clientX) / 2;
       lastTouchY = (touch1.clientY + touch2.clientY) / 2;
     } else {
-      fabricCanvas.isDrawingMode = true;
+      // fabricCanvas.isDrawingMode = true;
     }
   });
 
@@ -318,7 +318,7 @@ export function render(container: HTMLElement) {
     if (!fabricCanvas.isDrawingMode && currentTool === "text") {
       const pointer = fabricCanvas.getViewportPoint(options.e);
       // Textbox or IText ?
-      const text = new IText("テキストを入力", {
+      const text = new Textbox("テキストを入力", {
         left: pointer.x,
         top: pointer.y,
         fontFamily: "Arial",
@@ -327,12 +327,18 @@ export function render(container: HTMLElement) {
         editable: true,
       });
 
+      text.on("editing:entered", () => {
+        Logger.info("editing:entered");
+      });
+
       fabricCanvas.add(text);
       text.enterEditing();
-      text.selectAll();
+      // text.selectAll();
       fabricCanvas.setActiveObject(text);
-      fabricCanvas.requestRenderAll();
+      // fabricCanvas.requestRenderAll();
+
       currentTool = undefined;
+      fabricCanvas.isDrawingMode = false;
     }
   });
 

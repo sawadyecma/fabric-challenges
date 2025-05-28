@@ -3,6 +3,9 @@ const storyModules = import.meta.glob("./stories/*.story.ts");
 const listEl = document.getElementById("story-list")!;
 const containerEl = document.getElementById("story-container")!;
 const titleEl = document.querySelector("main h1")!;
+const sidebarEl = document.querySelector("aside")!;
+const toggleButton = document.getElementById("toggle-sidebar")!;
+const bodyEl = document.body;
 
 import "./styles/main.css";
 
@@ -11,6 +14,27 @@ interface Story {
   render: (container: HTMLElement) => void;
   docs?: () => string;
 }
+
+// Sidebar toggle functionality
+const toggleSidebar = () => {
+  const isCollapsed = sidebarEl.classList.toggle("collapsed");
+  toggleButton.classList.toggle("collapsed");
+  bodyEl.classList.toggle("sidebar-collapsed");
+  localStorage.setItem("sidebarCollapsed", isCollapsed.toString());
+};
+
+// Initialize sidebar state
+const initializeSidebar = () => {
+  const isCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
+  if (isCollapsed) {
+    sidebarEl.classList.add("collapsed");
+    toggleButton.classList.add("collapsed");
+    bodyEl.classList.add("sidebar-collapsed");
+  }
+};
+
+toggleButton.addEventListener("click", toggleSidebar);
+initializeSidebar();
 
 // Sort stories by case number
 const sortedEntries = Object.entries(storyModules)
