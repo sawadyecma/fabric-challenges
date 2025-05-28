@@ -14,26 +14,26 @@ export class Logger {
       const container = document.createElement("div");
       container.style.cssText = `
         position: fixed;
-        bottom: 0;
+        top: 0;
         left: 0;
         right: 0;
         z-index: 9999;
         transition: transform 0.3s ease;
-        transform: translateY(${this.isVisible ? "0" : "100%"});
+        transform: translateY(${this.isVisible ? "0" : "-100%"});
       `;
 
       // Add toggle button
       const toggleButton = document.createElement("button");
-      toggleButton.textContent = this.isVisible ? "▼ Hide Logs" : "▲ Show Logs";
+      toggleButton.textContent = this.isVisible ? "▲ Hide Logs" : "▼ Show Logs";
       toggleButton.style.cssText = `
         position: absolute;
-        top: -30px;
+        bottom: -30px;
         right: 10px;
         padding: 5px 10px;
         background: rgba(0, 0, 0, 0.8);
         color: #fff;
         border: none;
-        border-radius: 4px 4px 0 0;
+        border-radius: 0 0 4px 4px;
         cursor: pointer;
       `;
       toggleButton.onclick = () => this.toggleVisibility();
@@ -60,13 +60,13 @@ export class Logger {
       const container = this.logContainer.parentElement;
       if (container) {
         container.style.transform = `translateY(${
-          this.isVisible ? "0" : "100%"
+          this.isVisible ? "0" : "-100%"
         })`;
         const toggleButton = container.querySelector("button");
         if (toggleButton) {
           toggleButton.textContent = this.isVisible
-            ? "▼ Hide Logs"
-            : "▲ Show Logs";
+            ? "▲ Hide Logs"
+            : "▼ Show Logs";
         }
       }
     }
