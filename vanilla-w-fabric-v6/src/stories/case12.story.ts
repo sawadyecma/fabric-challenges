@@ -67,9 +67,9 @@ class WritableRect extends fabric.Group {
       height: 200,
       fill: "red",
       stroke: "#1976d2",
-      strokeWidth: 0,
-      rx: 8,
-      ry: 8,
+      strokeWidth: 20,
+      // rx: 8,
+      // ry: 8,
       strokeUniform: true,
       // strokeWidth: 0,
     });
@@ -78,14 +78,62 @@ class WritableRect extends fabric.Group {
       stroke: "yellow",
       fontSize: 18,
       fontFamily: "meiryo",
-      selectable: false,
-      evented: false,
+      // selectable: false,
+      // evented: false,
       left: 0,
       top: 0,
     });
-    super([shape, text]);
+
+    console.log("WritableRect constructor called");
+    super([], {
+      // objectCaching: false,
+      // strokeUniform: true,
+      // includeDefaultValues: false,
+    });
+    this.add(shape);
+    this.add(text);
     this.shape = shape;
     this.text = text;
+
+    this.on("modified", () => {
+      console.log("WritableRect modified");
+      {
+        const br = this.getBoundingRect();
+        console.log("BoundingRect:", br);
+      }
+      this.triggerLayout();
+
+      this.text.set({
+        left: this.shape.left,
+        top: this.shape.top,
+      });
+
+      console.log({
+        shape: {
+          left: this.shape.left,
+          top: this.shape.top,
+        },
+      });
+
+      console.log({
+        text: {
+          left: this.text.left,
+          top: this.text.top,
+        },
+      });
+
+      this.text.setCoords();
+      this.setCoords();
+      this.canvas?.requestRenderAll();
+
+      {
+        const br = this.getBoundingRect();
+        console.log("BoundingRect:", br);
+      }
+      this.triggerLayout();
+
+      console.log("WritableRect modified - text position updated");
+    });
   }
 
   set strokeColor(v: string) {
@@ -94,9 +142,17 @@ class WritableRect extends fabric.Group {
 
   setStrokeWidth(v: number) {
     this.shape.strokeWidth = v;
+
     // Groupの境界を再計算するためremove/add
     this.remove(this.shape);
     this.add(this.shape);
+
+    // Groupの座標を更新
+    this.setCoords();
+
     this.bringObjectToFront(this.text);
   }
+}
+export function docs() {
+  return "uniformStrokeを持つGroupの例。スケールすると余白が生まれてしまうのは、fabric.js固有の挙動。";
 }

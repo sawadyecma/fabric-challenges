@@ -27,6 +27,7 @@ export function render(container: HTMLElement) {
     strokeWidth: 4,
     rx: 8,
     ry: 8,
+    strokeUniform: true,
   });
 
   const text = new Textbox("あいうえお", {
@@ -85,4 +86,8 @@ export function render(container: HTMLElement) {
   label.appendChild(document.createTextNode(" 幅: "));
   label.appendChild(widthInput);
   container.appendChild(label);
+}
+
+export function docs() {
+  return "uniformStrokeを持つGroupの例。スケールすると余白が生まれてしまうのは、fabric.js固有の挙動。";
 }
