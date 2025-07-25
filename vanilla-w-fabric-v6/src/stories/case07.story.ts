@@ -173,7 +173,7 @@ export function render(container: HTMLElement) {
       if (isZooming) {
         const scale = distanceRatio * initialZoom;
         const limitedScale = Math.min(Math.max(scale, 1), 10);
-        Logger.info("limitedScale: " + limitedScale);
+        // Logger.info("limitedScale: " + limitedScale);
 
         // Convert screen coordinates to canvas coordinates using absolutePointer
         const point = new Point(
@@ -181,7 +181,7 @@ export function render(container: HTMLElement) {
           (touch1.clientY + touch2.clientY) / 2
         );
 
-        Logger.info("point: " + point.toString());
+        // Logger.info("point: " + point.toString());
         fabricCanvas.zoomToPoint(point, limitedScale);
       }
 
@@ -225,23 +225,27 @@ export function render(container: HTMLElement) {
     }
   });
 
-  fabricCanvas.on("before:path:created", (e) => {
-    Logger.info("before:path:created");
-  });
-  fabricCanvas.on("path:created", (e) => {
-    Logger.info("path:created");
-  });
+  let basicLogging = false;
 
-  fabricCanvas.upperCanvasEl.addEventListener("touchstart", (_e) => {
-    Logger.info("touchstart, length: " + _e.touches.length);
-  });
+  if (basicLogging) {
+    fabricCanvas.on("before:path:created", (e) => {
+      Logger.info("before:path:created");
+    });
+    fabricCanvas.on("path:created", (e) => {
+      Logger.info("path:created");
+    });
 
-  fabricCanvas.upperCanvasEl.addEventListener("touchmove", (_e) => {
-    Logger.info("touchmove, length: " + _e.touches.length);
-  });
-  fabricCanvas.upperCanvasEl.addEventListener("touchend", (_e) => {
-    Logger.info("touchend, length: " + _e.touches.length);
-  });
+    fabricCanvas.upperCanvasEl.addEventListener("touchstart", (_e) => {
+      Logger.info("touchstart, length: " + _e.touches.length);
+    });
+
+    fabricCanvas.upperCanvasEl.addEventListener("touchmove", (_e) => {
+      Logger.info("touchmove, length: " + _e.touches.length);
+    });
+    fabricCanvas.upperCanvasEl.addEventListener("touchend", (_e) => {
+      Logger.info("touchend, length: " + _e.touches.length);
+    });
+  }
 
   // Add tool buttons container
   const toolButtonsContainer = document.createElement("div");
@@ -313,6 +317,14 @@ export function render(container: HTMLElement) {
     Logger.info("Native mousedown event on canvas element");
   });
 
+  const textInput = document.createElement("textarea");
+  textInput.style.cssText = `
+    position: absolute;
+    opacity: 0;
+    z-index: -9999;
+  `;
+  container.appendChild(textInput);
+
   // Add text input functionality
   fabricCanvas.on("mouse:down", (options) => {
     if (!fabricCanvas.isDrawingMode && currentTool === "text") {
@@ -327,15 +339,49 @@ export function render(container: HTMLElement) {
         editable: true,
       });
 
-      text.on("editing:entered", () => {
-        Logger.info("editing:entered");
+      fabricCanvas.on("text:editing:entered", (opt) => {
+        const textbox = opt.target;
+        const textarea = document.createElement("textarea");
+        document.body.appendChild(textarea);
+
+        // canvas上の座標に表示
+        const rect = fabricCanvas.getElement().getBoundingClientRect();
+        textarea.style.position = "absolute";
+        textarea.style.left = `${rect.left + textbox.left}px`;
+        textarea.style.top = `${rect.top + textbox.top}px`;
+        textarea.style.font = "16px sans-serif";
+        textarea.style.zIndex = "10000";
+        textarea.style.opacity = "0";
+        textarea.style.width = "100px";
+        textarea.style.height = "20px";
+
+        textarea.focus();
+
+        // on blur -> remove textarea, update fabric text
+      });
+
+      // 入力イベントのハンドリング
+      textInput.addEventListener("input", (e) => {
+        const target = e.target as HTMLTextAreaElement;
+        text.set("text", target.value);
+        fabricCanvas.requestRenderAll();
+      });
+
+      // 入力完了時の処理
+      textInput.addEventListener("blur", () => {
+        text.exitEditing();
+        fabricCanvas.requestRenderAll();
+      });
+
+      textInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          textInput.blur();
+        }
       });
 
       fabricCanvas.add(text);
       text.enterEditing();
-      // text.selectAll();
       fabricCanvas.setActiveObject(text);
-      // fabricCanvas.requestRenderAll();
 
       currentTool = undefined;
       fabricCanvas.isDrawingMode = false;
@@ -344,12 +390,92 @@ export function render(container: HTMLElement) {
 
   fabricCanvas.renderAll();
   Logger.info("Canvas initialized with pencil brush drawing tool");
+
+  function setupKeyboardDetection(
+    onShow: (activeEle: HTMLTextAreaElement | null) => void,
+    onHide: () => void
+  ) {
+    let lastViewportHeight =
+      window.visualViewport?.height ?? window.innerHeight;
+    let activeElementIsInput = false;
+
+    let activeEle: HTMLTextAreaElement | null = null;
+
+    // 入力要素にフォーカスが当たったかを追跡
+    document.addEventListener("focusin", () => {
+      const active = document.activeElement;
+      activeElementIsInput =
+        (active && ["INPUT", "TEXTAREA"].includes(active.tagName)) ||
+        activeElementIsInput;
+      if (activeElementIsInput) {
+        Logger.info("focusin");
+        activeEle = active as HTMLTextAreaElement | null;
+      }
+    });
+
+    document.addEventListener("focusout", () => {
+      Logger.info("focusout");
+      activeElementIsInput = false;
+      activeEle = null;
+    });
+
+    window.visualViewport?.addEventListener("resize", () => {
+      const currentHeight = window.visualViewport?.height ?? window.innerHeight;
+      const diff = lastViewportHeight - currentHeight;
+
+      if (activeElementIsInput && diff > 150) {
+        onShow(activeEle);
+      } else if (!activeElementIsInput && diff < -150) {
+        onHide();
+      }
+
+      lastViewportHeight = currentHeight;
+    });
+  }
+
+  // 使用例
+  setupKeyboardDetection(
+    (activeEle) => {
+      const rect = activeEle?.getBoundingClientRect();
+      if (rect && window.visualViewport) {
+        // テキストエリアの中心Y座標
+        const textareaCenterY = rect.top + rect.height / 2;
+        // ビューポートの中央Y座標
+        const viewportCenterY = window.visualViewport.height / 2;
+        // スクロール量を計算
+        const scrollY = window.scrollY + textareaCenterY - viewportCenterY;
+        window.scrollTo({
+          top: scrollY,
+          behavior: "smooth",
+        });
+      }
+      Logger.warn("🔼 キーボード表示");
+    },
+    () => Logger.warn("🔽 キーボード非表示")
+  );
 }
 
 export function docs() {
   return `
- 
-  `;
+# case07: Fabric.js キャンバスのマルチタッチ・テキスト入力・キーボード対応
+
+- Fabric.jsのCanvas上でペン描画・テキスト入力ができます。
+- ペン/テキスト切り替えボタン、キャンバスクリアボタン付き。
+- 2本指でピンチズーム・パン操作が可能です。
+- テキスト入力時、キーボードが表示されたらテキストエリアが画面中央に来るよう自動スクロールします。
+- iOS/Androidのソフトウェアキーボード表示/非表示も検知し、ログ表示します。
+- ログは画面上部に常時表示され、トグルで非表示にもできます。
+
+## 主な実装ポイント
+- Fabric.jsの\`freeDrawingBrush\`をカスタマイズし、色・太さを管理
+- マルチタッチでズーム・パンを実装（2点間距離・中心座標の変化で判定）
+- テキスト入力時はhiddenTextareaの位置を検知し、キーボード表示時に中央へスクロール
+- \`visualViewport\`のリサイズイベントでキーボード表示/非表示を検知
+- Loggerで各種イベントを可視化
+
+\`src/stories/case07.story.ts\` を参照してください。
+\`src/utils/logger.ts\` でログUIを制御しています。
+`;
 }
 
 const isMultiTouch = (e: TouchEvent) => {
