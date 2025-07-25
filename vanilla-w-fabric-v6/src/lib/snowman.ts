@@ -37,15 +37,35 @@ export class Snowman extends Group {
 
     console.log("Snowman constructor called");
 
-    const _objects = objects.length > 0 ? objects : [circle1, circle2, circle3];
+    const getCircles = (): [fabric.Circle, fabric.Circle, fabric.Circle] => {
+      if (objects.length === 0) {
+        return [circle1, circle2, circle3];
+      }
+
+      const circles = objects
+        .filter((obj): obj is Circle => {
+          return obj instanceof Circle;
+        })
+        .sort((a, b) => {
+          return a.top - b.top;
+        });
+
+      if (circles.length !== 3) {
+        throw Error("invalid recovering circle");
+      }
+
+      return [circles[0], circles[1], circles[2]];
+    };
+
+    const _objects = getCircles();
 
     super(_objects, {
       ...options,
     });
 
-    this.circle1 = _objects[0] as Circle;
-    this.circle2 = _objects[1] as Circle;
-    this.circle3 = _objects[2] as Circle;
+    this.circle1 = _objects[0];
+    this.circle2 = _objects[1];
+    this.circle3 = _objects[2];
 
     this.on("scaling", this.onResize);
     this.on("mousedown", this.onMouseDown);
